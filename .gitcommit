@@ -1,0 +1,10 @@
+:sparkles: feat: 新功能
+:bug: fix: 修复
+:memo: docs: 文档改变
+:lipstick: style: 样式
+:art: refactor: 功能重构
+:racehorse: perf: 性能优化
+:white_check_mark: test: 增加测试
+:wrench: build: 改变build工具
+:heavy_minus_sign: revent: 撤销commit
+:construction: chore: 辅助工具改变
