@@ -1,23 +1,32 @@
-import { globalIgnores } from 'eslint/config'
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
-import pluginVue from 'eslint-plugin-vue'
+import antfu from '@antfu/eslint-config'
 import pluginOxlint from 'eslint-plugin-oxlint'
 
-// To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
-// import { configureVueProject } from '@vue/eslint-config-typescript'
-// configureVueProject({ scriptLangs: ['ts', 'tsx'] })
-// More info at https://github.com/vuejs/eslint-config-typescript/#advanced-setup
-
-export default defineConfigWithVueTs(
+export default antfu(
   {
-    name: 'app/files-to-lint',
-    files: ['**/*.{vue,ts,mts,tsx}'],
+    stylistic: {
+      indent: 2,
+      quotes: 'single',
+      semi: false,
+      jsx: true,
+    },
+    vue: true,
+    typescript: true,
+    formatters: true,
+    ignores: [ '**/dist/**', '**/dist-ssr/**', '**/coverage/**', 'node_modules/**' ],
+    rules: {
+      'vue/block-order': [ 'error', {
+        order: [ 'template', 'script', 'style' ],
+      } ],
+      'style/brace-style': [ 'error', '1tbs', { allowSingleLine: true } ],
+      'no-undef': 'off',
+      'unused-imports/no-unused-vars': 'off',
+      'no-unused-vars': [ 'warn', {
+        args: 'none',
+      } ],
+      'ts/consistent-type-definitions': [ 'error', 'interface' ],
+      '@typescript-eslint/promise-function-async': 'off',
+      'ts/strict-boolean-expressions': 'off',
+    },
   },
-
-  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
-
-  ...pluginVue.configs['flat/essential'],
-  vueTsConfigs.recommended,
-
   ...pluginOxlint.buildFromOxlintConfigFile('.oxlintrc.json'),
 )
