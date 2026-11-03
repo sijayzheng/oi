@@ -1,0 +1,88 @@
+// =============================================================================
+// 主题令牌（单一事实来源）——主题色体系、中性色、圆角与色阶生成函数
+//
+// 组织规范（SCSS 模块化）：
+//   1. 本文件只定义"令牌"与"生成函数"，不输出任何 CSS 规则，供其他模块 @use 消费；
+//   2. 主题色的浅色/深色阶（light-3~9 / dark-2）与 Element Plus 官方算法一致：
+//      light-N = mix(白, 基色, N*10%)，dark-2 = mix(黑, 基色, 20%)，
+//      保证生成值与组件库内置变量的语义完全对齐（升级兼容，见 docs 说明）；
+//   3. 新增主题色/调整取值只改本文件，覆写与工具类模块自动跟随。
+// =============================================================================
+
+@use 'sass:color';
+@use 'sass:map';
+@use 'sass:math';
+
+// ==================== 主题色（主色 + 辅助色） ====================
+
+// 主色：品牌蓝（参考设计稿 Naive Admin 主色）
+$color-primary: #2080f0;
+
+// 辅助色：语义色
+$color-success: #18a058;
+$color-warning: #f0a020;
+$color-danger: #d03050;
+$color-error: #d03050;
+$color-info: #2080f0;
+
+// ==================== 中性色（文字 / 边框 / 填充） ====================
+
+// 文字
+$color-text-primary: #303133;
+$color-text-regular: #606266;
+$color-text-secondary: #909399;
+$color-text-placeholder: #a8abb2;
+$color-text-disabled: #c0c4cc;
+
+// 边框
+$color-border: #dcdfe6;
+$color-border-light: #e4e7ed;
+$color-border-lighter: #ebeef5;
+
+// 填充
+$color-fill: #f0f2f5;
+$color-fill-light: #f5f7fa;
+
+// ==================== 圆角体系 ====================
+
+// 统一按钮/输入等常规组件圆角（设计稿约 6px 软圆角）
+$border-radius-base: 6px;
+$border-radius-small: 4px;
+$border-radius-round: 100px;
+$border-radius-circle: 50%;
+
+// ==================== 色阶生成（与 Element Plus 官方算法对齐） ====================
+
+/// 向基色混入白色生成浅色阶（N 为 1~10 的阶位，与 EP light-N 语义一致）
+@function tint($base, $level) {
+  @return color.mix(#ffffff, $base, math.percentage(math.div($level, 10)));
+}
+
+/// 向基色混入黑色生成深色阶（N 为阶位，与 EP dark-N 语义一致）
+@function shade($base, $level) {
+  @return color.mix(#000000, $base, math.percentage(math.div($level, 10)));
+}
+
+/// 生成单个主题色的完整色阶映射（base + light-3/5/7/8/9 + dark-2）
+@function palette($base) {
+  @return (
+    'base': $base,
+    'light-3': tint($base, 3),
+    'light-5': tint($base, 5),
+    'light-7': tint($base, 7),
+    'light-8': tint($base, 8),
+    'light-9': tint($base, 9),
+    'dark-2': shade($base, 2)
+  );
+}
+
+/// 全量主题色映射：key 与 Element Plus 颜色 CSS 变量名一一对应
+/// （--el-color-{key} / --el-color-{key}-light-N / --el-color-{key}-dark-2）
+$theme-colors: (
+  'primary': palette($color-primary),
+  'success': palette($color-success),
+  'warning': palette($color-warning),
+  'danger': palette($color-danger),
+  'error': palette($color-error),
+  'info': palette($color-info),
+);

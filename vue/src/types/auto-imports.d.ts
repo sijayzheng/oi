@@ -8,15 +8,41 @@
 // biome-ignore lint: disable
 export {}
 declare global {
+  const ArrowDown: typeof import('@element-plus/icons-vue').ArrowDown
+  const BusinessError: typeof import('../utils/request').BusinessError
+  const Close: typeof import('@element-plus/icons-vue').Close
+  const Delete: typeof import('@element-plus/icons-vue').Delete
+  const Download: typeof import('@element-plus/icons-vue').Download
+  const Edit: typeof import('@element-plus/icons-vue').Edit
   const EffectScope: typeof import('vue').EffectScope
+  const ElLoading: typeof import('element-plus/es').ElLoading
+  const ElMessage: typeof import('element-plus/es').ElMessage
+  const ElMessageBox: typeof import('element-plus/es').ElMessageBox
+  const Expand: typeof import('@element-plus/icons-vue').Expand
+  const Fold: typeof import('@element-plus/icons-vue').Fold
+  const Lock: typeof import('@element-plus/icons-vue').Lock
+  const MagicStick: typeof import('@element-plus/icons-vue').MagicStick
+  const Plus: typeof import('@element-plus/icons-vue').Plus
+  const Refresh: typeof import('@element-plus/icons-vue').Refresh
+  const RefreshLeft: typeof import('@element-plus/icons-vue').RefreshLeft
+  const Search: typeof import('@element-plus/icons-vue').Search
+  const Setting: typeof import('@element-plus/icons-vue').Setting
+  const Share: typeof import('@element-plus/icons-vue').Share
+  const User: typeof import('@element-plus/icons-vue').User
+  const UserFilled: typeof import('@element-plus/icons-vue').UserFilled
+  const View: typeof import('@element-plus/icons-vue').View
   const acceptHMRUpdate: typeof import('pinia').acceptHMRUpdate
   const asyncComputed: typeof import('@vueuse/core').asyncComputed
+  const authApi: typeof import('../api/auth').authApi
   const autoResetRef: typeof import('@vueuse/core').autoResetRef
+  const cancelAllRequests: typeof import('../utils/request').cancelAllRequests
+  const cancelRequest: typeof import('../utils/request').cancelRequest
   const computed: typeof import('vue').computed
   const computedAsync: typeof import('@vueuse/core').computedAsync
   const computedEager: typeof import('@vueuse/core').computedEager
   const computedInject: typeof import('@vueuse/core').computedInject
   const computedWithControl: typeof import('@vueuse/core').computedWithControl
+  const configApi: typeof import('../api/config').configApi
   const controlledComputed: typeof import('@vueuse/core').controlledComputed
   const controlledRef: typeof import('@vueuse/core').controlledRef
   const createApp: typeof import('vue').createApp
@@ -37,9 +63,13 @@ declare global {
   const defineAsyncComponent: typeof import('vue').defineAsyncComponent
   const defineComponent: typeof import('vue').defineComponent
   const defineStore: typeof import('pinia').defineStore
+  const dictItemApi: typeof import('../api/dict').dictItemApi
+  const dictTypeApi: typeof import('../api/dict').dictTypeApi
   const eagerComputed: typeof import('@vueuse/core').eagerComputed
   const effectScope: typeof import('vue').effectScope
   const extendRef: typeof import('@vueuse/core').extendRef
+  const fileApi: typeof import('../api/file').fileApi
+  const genApi: typeof import('../api/gen').genApi
   const getActivePinia: typeof import('pinia').getActivePinia
   const getCurrentInstance: typeof import('vue').getCurrentInstance
   const getCurrentScope: typeof import('vue').getCurrentScope
@@ -54,6 +84,7 @@ declare global {
   const isReadonly: typeof import('vue').isReadonly
   const isRef: typeof import('vue').isRef
   const isShallow: typeof import('vue').isShallow
+  const logApi: typeof import('../api/log').logApi
   const makeDestructurable: typeof import('@vueuse/core').makeDestructurable
   const mapActions: typeof import('pinia').mapActions
   const mapGetters: typeof import('pinia').mapGetters
@@ -61,7 +92,9 @@ declare global {
   const mapStores: typeof import('pinia').mapStores
   const mapWritableState: typeof import('pinia').mapWritableState
   const markRaw: typeof import('vue').markRaw
+  const menuApi: typeof import('../api/menu').menuApi
   const nextTick: typeof import('vue').nextTick
+  const noticeApi: typeof import('../api/notice').noticeApi
   const onActivated: typeof import('vue').onActivated
   const onBeforeMount: typeof import('vue').onBeforeMount
   const onBeforeRouteLeave: typeof import('vue-router').onBeforeRouteLeave
@@ -83,6 +116,7 @@ declare global {
   const onUnmounted: typeof import('vue').onUnmounted
   const onUpdated: typeof import('vue').onUpdated
   const onWatcherCleanup: typeof import('vue').onWatcherCleanup
+  const onlineApi: typeof import('../api/online').onlineApi
   const pausableWatch: typeof import('@vueuse/core').pausableWatch
   const provide: typeof import('vue').provide
   const provideLocal: typeof import('@vueuse/core').provideLocal
@@ -100,7 +134,9 @@ declare global {
   const refManualReset: typeof import('@vueuse/core').refManualReset
   const refThrottled: typeof import('@vueuse/core').refThrottled
   const refWithControl: typeof import('@vueuse/core').refWithControl
+  const request: typeof import('../utils/request').default
   const resolveComponent: typeof import('vue').resolveComponent
+  const roleApi: typeof import('../api/role').roleApi
   const setActivePinia: typeof import('pinia').setActivePinia
   const setMapStoreSuffix: typeof import('pinia').setMapStoreSuffix
   const shallowReactive: typeof import('vue').shallowReactive
@@ -111,6 +147,7 @@ declare global {
   const syncRefs: typeof import('@vueuse/core').syncRefs
   const throttledRef: typeof import('@vueuse/core').throttledRef
   const throttledWatch: typeof import('@vueuse/core').throttledWatch
+  const toFileSrc: typeof import('../api/file').toFileSrc
   const toRaw: typeof import('vue').toRaw
   const toReactive: typeof import('@vueuse/core').toReactive
   const toRef: typeof import('vue').toRef
@@ -263,6 +300,7 @@ declare global {
   const useStyleTag: typeof import('@vueuse/core').useStyleTag
   const useSupported: typeof import('@vueuse/core').useSupported
   const useSwipe: typeof import('@vueuse/core').useSwipe
+  const useTablePage: typeof import('../composables/useTablePage').useTablePage
   const useTemplateRef: typeof import('vue').useTemplateRef
   const useTemplateRefsList: typeof import('@vueuse/core').useTemplateRefsList
   const useTemporalNow: typeof import('@vueuse/core').useTemporalNow
@@ -298,6 +336,7 @@ declare global {
   const useWindowFocus: typeof import('@vueuse/core').useWindowFocus
   const useWindowScroll: typeof import('@vueuse/core').useWindowScroll
   const useWindowSize: typeof import('@vueuse/core').useWindowSize
+  const userApi: typeof import('../api/user').userApi
   const watch: typeof import('vue').watch
   const watchArray: typeof import('@vueuse/core').watchArray
   const watchAtMost: typeof import('@vueuse/core').watchAtMost
@@ -320,6 +359,48 @@ declare global {
   // @ts-ignore
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
+  // @ts-ignore
+  export type { BusinessError, RequestConfig } from '../utils/request'
+  import('../utils/request')
+  // @ts-ignore
+  export type { SysLoginCmd, SysLoginVO, SysUserMenuVO, SysProfileVO, SysProfileUpdateCmd, SysChangePasswordCmd } from './auth.d'
+  import('./auth.d')
+  // @ts-ignore
+  export type { PageQuery, Result } from './common.d'
+  import('./common.d')
+  // @ts-ignore
+  export type { ConfigValueType, SysConfigCreateCmd, SysConfigUpdateCmd, SysConfigQuery, SysConfigVO } from './config.d'
+  import('./config.d')
+  // @ts-ignore
+  export type { SelectOption, SysDictTypeCreateCmd, SysDictTypeUpdateCmd, SysDictTypeQuery, SysDictTypeVO, SysDictItemCreateCmd, SysDictItemUpdateCmd, SysDictItemQuery, SysDictItemVO } from './dict.d'
+  import('./dict.d')
+  // @ts-ignore
+  export type { FormInstance, FormRules, UploadRequestOptions } from './element-plus.d'
+  import('./element-plus.d')
+  // @ts-ignore
+  export type { SysFileVO, SysFileQuery } from './file.d'
+  import('./file.d')
+  // @ts-ignore
+  export type { ImportableTable, GenTable, GenTableColumn, GenTableDetail, GenColumnSaveCmd, GenTableSaveCmd } from './gen.d'
+  import('./gen.d')
+  // @ts-ignore
+  export type { LogLevel, SysLogVO, SysLogQuery } from './log.d'
+  import('./log.d')
+  // @ts-ignore
+  export type { MenuType, SysMenuCreateCmd, SysMenuUpdateCmd, SysMenuQuery, SysMenuVO, TreeNode } from './menu.d'
+  import('./menu.d')
+  // @ts-ignore
+  export type { OnlineUserVO } from './monitor.d'
+  import('./monitor.d')
+  // @ts-ignore
+  export type { SysNoticeCreateCmd, SysNoticeUpdateCmd, SysNoticeQuery, SysNoticeVO } from './notice.d'
+  import('./notice.d')
+  // @ts-ignore
+  export type { SysRoleCreateCmd, SysRoleUpdateCmd, SysRoleQuery, SysRoleVO } from './role.d'
+  import('./role.d')
+  // @ts-ignore
+  export type { SysUserCreateCmd, SysUserUpdateCmd, SysUserQuery, SysUserVO } from './user.d'
+  import('./user.d')
 }
 
 // for vue template auto import
@@ -327,15 +408,41 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
+    readonly ArrowDown: UnwrapRef<typeof import('@element-plus/icons-vue')['ArrowDown']>
+    readonly BusinessError: UnwrapRef<typeof import('../utils/request')['BusinessError']>
+    readonly Close: UnwrapRef<typeof import('@element-plus/icons-vue')['Close']>
+    readonly Delete: UnwrapRef<typeof import('@element-plus/icons-vue')['Delete']>
+    readonly Download: UnwrapRef<typeof import('@element-plus/icons-vue')['Download']>
+    readonly Edit: UnwrapRef<typeof import('@element-plus/icons-vue')['Edit']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
+    readonly ElLoading: UnwrapRef<typeof import('element-plus/es')['ElLoading']>
+    readonly ElMessage: UnwrapRef<typeof import('element-plus/es')['ElMessage']>
+    readonly ElMessageBox: UnwrapRef<typeof import('element-plus/es')['ElMessageBox']>
+    readonly Expand: UnwrapRef<typeof import('@element-plus/icons-vue')['Expand']>
+    readonly Fold: UnwrapRef<typeof import('@element-plus/icons-vue')['Fold']>
+    readonly Lock: UnwrapRef<typeof import('@element-plus/icons-vue')['Lock']>
+    readonly MagicStick: UnwrapRef<typeof import('@element-plus/icons-vue')['MagicStick']>
+    readonly Plus: UnwrapRef<typeof import('@element-plus/icons-vue')['Plus']>
+    readonly Refresh: UnwrapRef<typeof import('@element-plus/icons-vue')['Refresh']>
+    readonly RefreshLeft: UnwrapRef<typeof import('@element-plus/icons-vue')['RefreshLeft']>
+    readonly Search: UnwrapRef<typeof import('@element-plus/icons-vue')['Search']>
+    readonly Setting: UnwrapRef<typeof import('@element-plus/icons-vue')['Setting']>
+    readonly Share: UnwrapRef<typeof import('@element-plus/icons-vue')['Share']>
+    readonly User: UnwrapRef<typeof import('@element-plus/icons-vue')['User']>
+    readonly UserFilled: UnwrapRef<typeof import('@element-plus/icons-vue')['UserFilled']>
+    readonly View: UnwrapRef<typeof import('@element-plus/icons-vue')['View']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
+    readonly authApi: UnwrapRef<typeof import('../api/auth')['authApi']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
+    readonly cancelAllRequests: UnwrapRef<typeof import('../utils/request')['cancelAllRequests']>
+    readonly cancelRequest: UnwrapRef<typeof import('../utils/request')['cancelRequest']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly computedAsync: UnwrapRef<typeof import('@vueuse/core')['computedAsync']>
     readonly computedEager: UnwrapRef<typeof import('@vueuse/core')['computedEager']>
     readonly computedInject: UnwrapRef<typeof import('@vueuse/core')['computedInject']>
     readonly computedWithControl: UnwrapRef<typeof import('@vueuse/core')['computedWithControl']>
+    readonly configApi: UnwrapRef<typeof import('../api/config')['configApi']>
     readonly controlledComputed: UnwrapRef<typeof import('@vueuse/core')['controlledComputed']>
     readonly controlledRef: UnwrapRef<typeof import('@vueuse/core')['controlledRef']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
@@ -356,9 +463,13 @@ declare module 'vue' {
     readonly defineAsyncComponent: UnwrapRef<typeof import('vue')['defineAsyncComponent']>
     readonly defineComponent: UnwrapRef<typeof import('vue')['defineComponent']>
     readonly defineStore: UnwrapRef<typeof import('pinia')['defineStore']>
+    readonly dictItemApi: UnwrapRef<typeof import('../api/dict')['dictItemApi']>
+    readonly dictTypeApi: UnwrapRef<typeof import('../api/dict')['dictTypeApi']>
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
+    readonly fileApi: UnwrapRef<typeof import('../api/file')['fileApi']>
+    readonly genApi: UnwrapRef<typeof import('../api/gen')['genApi']>
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
@@ -373,6 +484,7 @@ declare module 'vue' {
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
     readonly isShallow: UnwrapRef<typeof import('vue')['isShallow']>
+    readonly logApi: UnwrapRef<typeof import('../api/log')['logApi']>
     readonly makeDestructurable: UnwrapRef<typeof import('@vueuse/core')['makeDestructurable']>
     readonly mapActions: UnwrapRef<typeof import('pinia')['mapActions']>
     readonly mapGetters: UnwrapRef<typeof import('pinia')['mapGetters']>
@@ -380,7 +492,9 @@ declare module 'vue' {
     readonly mapStores: UnwrapRef<typeof import('pinia')['mapStores']>
     readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
+    readonly menuApi: UnwrapRef<typeof import('../api/menu')['menuApi']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
+    readonly noticeApi: UnwrapRef<typeof import('../api/notice')['noticeApi']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
     readonly onBeforeRouteLeave: UnwrapRef<typeof import('vue-router')['onBeforeRouteLeave']>
@@ -402,6 +516,7 @@ declare module 'vue' {
     readonly onUnmounted: UnwrapRef<typeof import('vue')['onUnmounted']>
     readonly onUpdated: UnwrapRef<typeof import('vue')['onUpdated']>
     readonly onWatcherCleanup: UnwrapRef<typeof import('vue')['onWatcherCleanup']>
+    readonly onlineApi: UnwrapRef<typeof import('../api/online')['onlineApi']>
     readonly pausableWatch: UnwrapRef<typeof import('@vueuse/core')['pausableWatch']>
     readonly provide: UnwrapRef<typeof import('vue')['provide']>
     readonly provideLocal: UnwrapRef<typeof import('@vueuse/core')['provideLocal']>
@@ -419,7 +534,9 @@ declare module 'vue' {
     readonly refManualReset: UnwrapRef<typeof import('@vueuse/core')['refManualReset']>
     readonly refThrottled: UnwrapRef<typeof import('@vueuse/core')['refThrottled']>
     readonly refWithControl: UnwrapRef<typeof import('@vueuse/core')['refWithControl']>
+    readonly request: UnwrapRef<typeof import('../utils/request')['default']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
+    readonly roleApi: UnwrapRef<typeof import('../api/role')['roleApi']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
@@ -430,6 +547,7 @@ declare module 'vue' {
     readonly syncRefs: UnwrapRef<typeof import('@vueuse/core')['syncRefs']>
     readonly throttledRef: UnwrapRef<typeof import('@vueuse/core')['throttledRef']>
     readonly throttledWatch: UnwrapRef<typeof import('@vueuse/core')['throttledWatch']>
+    readonly toFileSrc: UnwrapRef<typeof import('../api/file')['toFileSrc']>
     readonly toRaw: UnwrapRef<typeof import('vue')['toRaw']>
     readonly toReactive: UnwrapRef<typeof import('@vueuse/core')['toReactive']>
     readonly toRef: UnwrapRef<typeof import('vue')['toRef']>
@@ -582,6 +700,7 @@ declare module 'vue' {
     readonly useStyleTag: UnwrapRef<typeof import('@vueuse/core')['useStyleTag']>
     readonly useSupported: UnwrapRef<typeof import('@vueuse/core')['useSupported']>
     readonly useSwipe: UnwrapRef<typeof import('@vueuse/core')['useSwipe']>
+    readonly useTablePage: UnwrapRef<typeof import('../composables/useTablePage')['useTablePage']>
     readonly useTemplateRef: UnwrapRef<typeof import('vue')['useTemplateRef']>
     readonly useTemplateRefsList: UnwrapRef<typeof import('@vueuse/core')['useTemplateRefsList']>
     readonly useTemporalNow: UnwrapRef<typeof import('@vueuse/core')['useTemporalNow']>
@@ -617,6 +736,7 @@ declare module 'vue' {
     readonly useWindowFocus: UnwrapRef<typeof import('@vueuse/core')['useWindowFocus']>
     readonly useWindowScroll: UnwrapRef<typeof import('@vueuse/core')['useWindowScroll']>
     readonly useWindowSize: UnwrapRef<typeof import('@vueuse/core')['useWindowSize']>
+    readonly userApi: UnwrapRef<typeof import('../api/user')['userApi']>
     readonly watch: UnwrapRef<typeof import('vue')['watch']>
     readonly watchArray: UnwrapRef<typeof import('@vueuse/core')['watchArray']>
     readonly watchAtMost: UnwrapRef<typeof import('@vueuse/core')['watchAtMost']>

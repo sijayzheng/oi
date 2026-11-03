@@ -12,18 +12,33 @@ export default antfu(
     vue: true,
     typescript: true,
     formatters: true,
-    ignores: [ '**/dist/**', '**/dist-ssr/**', '**/coverage/**', 'node_modules/**' ],
+    ignores: [
+      '**/dist/**',
+      '**/dist-ssr/**',
+      '**/coverage/**',
+      'node_modules/**',
+    ],
     rules: {
-      'vue/block-order': [ 'error', {
-        order: [ 'template', 'script', 'style' ],
-      } ],
-      'style/brace-style': [ 'error', '1tbs', { allowSingleLine: true } ],
+      'vue/block-order': [
+        'error',
+        {
+          order: ['template', 'script', 'style'],
+        },
+      ],
+      'style/brace-style': [
+        'error',
+        '1tbs',
+        { allowSingleLine: true },
+      ],
       'no-undef': 'off',
       'unused-imports/no-unused-vars': 'off',
-      'no-unused-vars': [ 'warn', {
-        args: 'none',
-      } ],
-      'ts/consistent-type-definitions': [ 'error', 'interface' ],
+      'no-unused-vars': [
+        'warn',
+        {
+          args: 'none',
+        },
+      ],
+      'ts/consistent-type-definitions': ['error', 'interface'],
       '@typescript-eslint/promise-function-async': 'off',
       'ts/strict-boolean-expressions': 'off',
     },

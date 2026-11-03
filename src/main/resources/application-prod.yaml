@@ -1,0 +1,12 @@
+# Production profile: monitoring component disabled by default.
+decorator:
+  datasource:
+    # Disabled by default in prod; flip to true to enable datasource-proxy at runtime.
+    enabled: false
+    datasource-proxy:
+      query:
+        # SQL printing rule for prod: pre-configured ON, so enabling the switch
+        # above immediately produces full SQL statements with bound parameters.
+        enable-logging: true
+        log-level: INFO
+        multiline: true

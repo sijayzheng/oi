@@ -1,0 +1,13 @@
+# Development profile: datasource-proxy (data-layer monitoring) fully enabled.
+decorator:
+  datasource:
+    # Unified switch for the monitoring component. Set to false to disable
+    # proxying entirely - no code changes required.
+    enabled: true
+    datasource-proxy:
+      query:
+        # Dev: toggle full-SQL + bound-parameter printing here.
+        enable-logging: true
+        # Listener logs at DEBUG by default; INFO shows SQL without extra logger config.
+        log-level: INFO
+        multiline: true

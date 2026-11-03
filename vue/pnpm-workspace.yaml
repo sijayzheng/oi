@@ -1,5 +1,10 @@
 minimumReleaseAgeExcludePrune: true
+
 trustPolicy: no-downgrade
+# semver@6.3.1 为 2023 年发布的稳定版本（大量工具链依赖），被信任策略判定为信任降级，显式排除
+trustPolicyExclude:
+  - semver@6.3.1
+
 shellEmulator: true
 
 allowBuilds:

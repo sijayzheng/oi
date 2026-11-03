@@ -1,0 +1,13 @@
+// =============================================================================
+// 全局样式入口——按"基础样式 → 布局 → 组件覆写 → 工具类"的模块化顺序组织
+//
+// 引入约定：main.ts 仅引入本文件（原 assets/base.css 与 assets/main.css 的内容
+// 已按模块化规范合入 theme/base 与 theme/layout）；主题覆写统一依赖
+// theme/_variables 的令牌；覆写优先级策略见 theme/_element-overrides
+// （html:root 提升特异性，规避按需注入顺序问题）。
+// =============================================================================
+
+@use './theme/base';
+@use './theme/layout';
+@use './theme/element-overrides';
+@use './theme/utilities';

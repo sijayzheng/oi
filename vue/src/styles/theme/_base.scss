@@ -1,3 +1,10 @@
+// =============================================================================
+// 基础样式——全局调色板、语义变量与元素级重置（原 assets/base.css 内容合入）
+//
+// 组织规范：仅承载浏览器默认样式的归一化与基础色彩变量，不写组件级样式；
+// 主题色体系（主色/辅助色/中性色）见 ./variables，组件覆写见 ./element-overrides。
+// =============================================================================
+
 /* color palette from <https://github.com/vuejs/theme> */
 :root {
   --vt-c-white: #ffffff;
@@ -55,11 +62,11 @@
 *::after {
   box-sizing: border-box;
   margin: 0;
+  padding: 0;
   font-weight: normal;
 }
 
 body {
-  min-height: 100vh;
   color: var(--color-text);
   background: var(--color-background);
   transition:

@@ -1,0 +1,124 @@
+// =============================================================================
+// Element Plus 样式覆写——CSS 变量覆盖 + 组件级覆写
+//
+// 优先级保障（关键约定）：
+//   项目为 unplugin 按需引入，Element Plus 组件样式（含其 :root 变量定义）
+//   在运行时注入，晚于全局样式表；因此本文件的变量覆写统一挂在
+//   `html:root`（特异性 0-1-1，高于 EP 的 `:root` 0-1-0）之上，
+//   与注入顺序无关地稳定覆盖默认值，避免样式冲突。
+//
+// 升级兼容（关键约定）：
+//   一律覆写 Element Plus 官方 CSS 变量（--el-*），不改写组件类名的具体属性；
+//   组件库升级后变量语义不变，覆写自动延续生效。
+// =============================================================================
+
+@use 'sass:map';
+@use './variables' as *;
+
+// ==================== 全局变量覆写 ====================
+
+html:root {
+  // ---- 主题色体系：primary/success/warning/danger/error/info 全量色阶 ----
+  @each $name, $shades in $theme-colors {
+    --el-color-#{$name}: #{map.get($shades, 'base')};
+    --el-color-#{$name}-light-3: #{map.get($shades, 'light-3')};
+    --el-color-#{$name}-light-5: #{map.get($shades, 'light-5')};
+    --el-color-#{$name}-light-7: #{map.get($shades, 'light-7')};
+    --el-color-#{$name}-light-8: #{map.get($shades, 'light-8')};
+    --el-color-#{$name}-light-9: #{map.get($shades, 'light-9')};
+    --el-color-#{$name}-dark-2: #{map.get($shades, 'dark-2')};
+  }
+
+  // ---- 圆角体系：统一所有按钮与常规组件的圆角尺寸 ----
+  --el-border-radius-base: #{$border-radius-base};
+  --el-border-radius-small: #{$border-radius-small};
+  --el-border-radius-round: #{$border-radius-round};
+  --el-border-radius-circle: #{$border-radius-circle};
+
+  // ---- 中性色：文字 ----
+  --el-text-color-primary: #{$color-text-primary};
+  --el-text-color-regular: #{$color-text-regular};
+  --el-text-color-secondary: #{$color-text-secondary};
+  --el-text-color-placeholder: #{$color-text-placeholder};
+  --el-text-color-disabled: #{$color-text-disabled};
+
+  // ---- 中性色：边框 ----
+  --el-border-color: #{$color-border};
+  --el-border-color-light: #{$color-border-light};
+  --el-border-color-lighter: #{$color-border-lighter};
+
+  // ---- 中性色：填充 ----
+  --el-fill-color: #{$color-fill};
+  --el-fill-color-light: #{$color-fill-light};
+
+  // ---- 导航强调：菜单/链接的激活色跟随主色（替代组件上的硬编码色值） ----
+  --el-menu-active-color: #{$color-primary};
+  --el-color-primary-rgb: 32, 128, 240;
+}
+
+// ==================== 组件级覆写 ====================
+
+// 按钮：显式统一圆角（EP 按钮已引用 --el-border-radius-base，此处为兜底声明，
+// 同时确保 icon-only / loading 等变体一致）
+.el-button {
+  border-radius: var(--el-border-radius-base);
+}
+
+// 侧边栏导航激活项背景跟随主色浅阶（参考设计稿：浅蓝底 + 主色文字）
+.el-menu {
+  --el-menu-hover-bg-color: #{map.get(map.get($theme-colors, 'primary'), 'light-9')};
+}
+
+// ==================== 页面视觉规范（对齐 Naive Admin 设计稿） ====================
+
+// 卡片：白底、8px 圆角、无边框、极浅投影（内容区灰底衬托层次）
+html:root {
+  --el-card-border-radius: 8px;
+}
+
+.el-card {
+  border: none;
+}
+
+// shadow="never" 的卡片同样呈现极浅投影（特异性高于 EP 的 .is-never-shadow）
+.el-card.is-never-shadow {
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 3%),
+    0 4px 12px rgb(0 0 0 / 4%);
+}
+
+// 搜索卡片与数据卡片之间的间距（页面上相邻两张卡片）
+.admin-main .el-card + .el-card {
+  margin-top: 12px;
+}
+
+// 搜索卡片底部收紧：表单项自带 12px 底边距，避免卡片底部留白过大
+.admin-main .search-card .el-card__body {
+  padding-bottom: 8px;
+}
+
+// 表格：表头浅灰底（设计稿），行线保留、竖线与外框去除
+html:root {
+  --el-table-header-bg-color: #fafafc;
+}
+
+.el-table--border .el-table__cell {
+  border-right: none;
+}
+
+.el-table--border::after,
+.el-table--border::before,
+.el-table--border .el-table__inner-wrapper::before,
+.el-table--border .el-table__inner-wrapper::after {
+  display: none;
+}
+
+// 斑马纹弱化为白底行（设计稿为通栏白底行 + 细行分隔线）
+.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+  background-color: transparent;
+}
+
+// 分页器居中（设计稿；三段类名特异性高于页面 scoped 样式）
+.admin-main .el-pagination.page-pagination {
+  justify-content: center;
+}

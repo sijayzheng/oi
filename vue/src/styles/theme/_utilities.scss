@@ -1,0 +1,51 @@
+// =============================================================================
+// 工具类——基于主题令牌的轻量辅助类，供业务模板快速引用主题体系
+//
+// 组织规范：仅输出与主题强相关的少量工具类（文本色/背景色/圆角），
+// 不承载组件级样式；新工具类按 .text-*/.bg-*/.radius-* 三族扩展。
+// =============================================================================
+
+@use 'sass:map';
+@use './variables' as *;
+
+// ==================== 文本色工具类 ====================
+
+.text-primary {
+  color: $color-primary;
+}
+
+.text-success {
+  color: $color-success;
+}
+
+.text-warning {
+  color: $color-warning;
+}
+
+.text-danger {
+  color: $color-danger;
+}
+
+.text-secondary {
+  color: $color-text-secondary;
+}
+
+// ==================== 背景色工具类 ====================
+
+.bg-primary-light {
+  background-color: map.get(map.get($theme-colors, 'primary'), 'light-9');
+}
+
+.bg-fill {
+  background-color: $color-fill;
+}
+
+// ==================== 圆角工具类 ====================
+
+.radius-base {
+  border-radius: $border-radius-base;
+}
+
+.radius-round {
+  border-radius: $border-radius-round;
+}

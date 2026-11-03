@@ -1,3 +1,62 @@
 spring:
   application:
     name: oi
+  profiles:
+    # Default to dev profile; override with --spring.profiles.active=prod in production.
+    default: dev
+  autoconfigure:
+    # The starter's own registration has a broken ordering hint on Boot 4 (Boot 3 package
+    # reference); it is re-registered with correct ordering by DataSourceDecoratorBoot4CompatAutoConfiguration.
+    exclude: com.github.gavlyukovskiy.boot.jdbc.decorator.DataSourceDecoratorAutoConfiguration
+  datasource:
+    url: jdbc:h2:file:./data/oi;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      idle-timeout: 30000
+      max-lifetime: 120000
+      auto-commit: true
+      pool-name: HikariCP
+      keepalive-time: 60000
+  sql:
+    init:
+      mode: never
+      schema-locations: classpath:sql/schema-h2.sql
+  servlet:
+    multipart:
+      # 文件上传报文硬上限（统一文件服务的业务级大小限制见 file.upload.max-size）
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# 统一文件管理服务配置（调用规范见 docs/file/README.md；业务模块只存文件 id，禁止存 URL/路径）
+file:
+  upload:
+    # 全局默认扩展名白名单（小写、不含点）；纯图片业务可用 FileService.uploadImage 收窄为图片白名单
+    allowed-extensions: jpg,jpeg,png,gif,webp,pdf,txt,doc,docx,xls,xlsx,ppt,pptx,zip,rar,7z
+    # 单文件大小上限（multipart 硬上限之内）
+    max-size: 10MB
+  access:
+    # 访问地址签名密钥（HMAC-SHA256）；生产环境务必更换为随机高熵值
+    secret: oi-file-access-secret
+    # 访问地址默认有效期（分钟）
+    ttl-minutes: 30
+
+# sa-token 登录认证配置（全局鉴权规则见 cn.sijay.oi.common.config.SaTokenConfigure）
+sa-token:
+  # 令牌名称（请求头/Cookie 参数名），前端登录后携带该请求头访问受保护接口
+  token-name: satoken
+  # 令牌有效期（秒）：30 天
+  timeout: 2592000
+  # 临时活跃超时（秒）：-1 表示不校验活跃冻结
+  active-timeout: -1
+  # 允许同一账号并发登录
+  is-concurrent: true
+  # 并发登录共享同一令牌
+  is-share: true
+  # 令牌风格：UUID
+  token-style: uuid
+  # 关闭框架级日志打印
+  is-log: false
