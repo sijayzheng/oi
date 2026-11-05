@@ -1,7 +1,7 @@
 package cn.sijay.oi.common.web;
 
-import cn.sijay.oi.common.Result;
 import cn.sijay.oi.common.exception.ErrorCode;
+import cn.sijay.oi.common.model.Result;
 
 /**
  * 基础抽象控制器，项目中所有业务控制器的统一父类。
@@ -136,7 +136,7 @@ public abstract class BaseController {
      * 注意：未捕获异常无需手动处理，全局异常处理器会统一兜底，
      * 仅在需要就地降级响应时使用本方法。
      *
-     * @param e 异常对象；取其 message 作为响应消息，空消息回退为"系统异常"
+     * @param e   异常对象；取其 message 作为响应消息，空消息回退为"系统异常"
      * @param <T> 响应数据类型
      * @return code=500、message=异常消息、data=null、total=null 的失败响应
      */

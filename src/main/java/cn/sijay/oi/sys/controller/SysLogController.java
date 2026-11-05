@@ -1,7 +1,7 @@
 package cn.sijay.oi.sys.controller;
 
-import cn.sijay.oi.common.Result;
 import cn.sijay.oi.common.model.PageQuery;
+import cn.sijay.oi.common.model.Result;
 import cn.sijay.oi.common.web.BaseController;
 import cn.sijay.oi.sys.model.SysLogQuery;
 import cn.sijay.oi.sys.model.SysLogVO;

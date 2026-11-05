@@ -34,6 +34,7 @@
         <commons-lang3.version>3.21.0</commons-lang3.version>
         <commons-io.version>2.22.0</commons-io.version>
         <commons-collections4.version>4.6.0</commons-collections4.version>
+        <bouncycastle.version>1.86</bouncycastle.version>
     </properties>
     <dependencies>
         <dependency>
@@ -75,6 +76,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
             <version>${commons-collections4.version}</version>
+        </dependency>
+        <dependency>
+            <!-- 国密算法支持（SM2/SM3/SM4）；BouncyCastle 安全提供者，SmUtil 工具类依赖 -->
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>${bouncycastle.version}</version>
         </dependency>
         <dependency>
             <groupId>de.codecentric</groupId>

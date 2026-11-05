@@ -30,7 +30,8 @@ INSERT INTO sys_menu (id, parent_id, name, type, path, component, perms, icon, s
   (8, 7, '通知公告', 'MENU',      '/sys/notice',  'sys/NoticeView',   NULL, 'Bell',      1, TRUE, TRUE, 0),
   (9, 7, '代码生成', 'MENU',      '/system/gen',  'system/GenView',   NULL, 'MagicStick', 2, TRUE, TRUE, 0),
   (10, 1, '在线用户', 'MENU',      '/monitor/online', 'monitor/OnlineUserView', NULL, 'Monitor', 6, TRUE, TRUE, 0),
-  (11, 1, '日志管理', 'MENU',      '/system/log',  'system/LogView',   NULL, 'Document',  7, TRUE, TRUE, 0);
+  (11, 1, '日志管理', 'MENU',      '/system/log',  'system/LogView',   NULL, 'Document',  7, TRUE, TRUE, 0),
+  (12, 7, '站内信',   'MENU',      '/message',     'sys/MessageView',  NULL, 'ChatDotRound', 3, TRUE, TRUE, 0);
 
 -- 显式主键插入后重置自增序列，避免后续新增菜单时主键冲突
 ALTER TABLE sys_menu ALTER COLUMN id RESTART WITH 100;
@@ -54,10 +55,11 @@ ALTER TABLE sys_role ALTER COLUMN id RESTART WITH 1001;
 INSERT INTO sys_user_role (user_id, role_id) VALUES
   (38, 1000);
 
--- viewer 授权：两个目录（1/7）+ 参数配置（6）+ 通知公告（8）；
+-- viewer 授权：两个目录（1/7）+ 参数配置（6）+ 通知公告（8）+ 站内信（12）；
 -- 目录 7 下未授权的代码生成（9）不出现在其菜单树中，直达路由由前端 404 拦截
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES
   (1000, 1),
   (1000, 6),
   (1000, 7),
-  (1000, 8);
+  (1000, 8),
+  (1000, 12);

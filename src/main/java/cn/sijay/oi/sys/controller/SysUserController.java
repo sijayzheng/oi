@@ -1,9 +1,9 @@
 package cn.sijay.oi.sys.controller;
 
-import cn.sijay.oi.auth.service.StpInterfaceImpl;
 import cn.dev33.satoken.annotation.SaCheckRole;
-import cn.sijay.oi.common.Result;
+import cn.sijay.oi.auth.service.StpInterfaceImpl;
 import cn.sijay.oi.common.model.PageQuery;
+import cn.sijay.oi.common.model.Result;
 import cn.sijay.oi.common.web.BaseController;
 import cn.sijay.oi.sys.entity.SysUser;
 import cn.sijay.oi.sys.model.user.SysUserCreateCmd;

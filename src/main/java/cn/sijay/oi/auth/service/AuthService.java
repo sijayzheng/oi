@@ -1,25 +1,17 @@
 package cn.sijay.oi.auth.service;
 
 import cn.dev33.satoken.stp.StpUtil;
-import cn.sijay.oi.auth.model.SysChangePasswordCmd;
-import cn.sijay.oi.auth.model.SysLoginCmd;
-import cn.sijay.oi.auth.model.SysLoginVO;
-import cn.sijay.oi.auth.model.SysProfileUpdateCmd;
-import cn.sijay.oi.auth.model.SysProfileVO;
-import cn.sijay.oi.auth.model.SysUserMenuVO;
+import cn.sijay.oi.auth.model.*;
 import cn.sijay.oi.common.exception.BusinessErrorCode;
 import cn.sijay.oi.common.exception.BusinessException;
-import cn.sijay.oi.file.model.SysFileVO;
-import cn.sijay.oi.file.service.FileService;
-import cn.sijay.oi.sys.entity.SysMenu;
-import cn.sijay.oi.sys.entity.SysLog;
-import cn.sijay.oi.sys.entity.SysRoleMenu;
-import cn.sijay.oi.sys.entity.SysUser;
-import cn.sijay.oi.sys.entity.SysUserRole;
+import cn.sijay.oi.common.util.SmUtil;
+import cn.sijay.oi.sys.entity.*;
+import cn.sijay.oi.sys.model.SysFileVO;
 import cn.sijay.oi.sys.repository.SysMenuRepository;
 import cn.sijay.oi.sys.repository.SysRoleMenuRepository;
 import cn.sijay.oi.sys.repository.SysUserRepository;
 import cn.sijay.oi.sys.repository.SysUserRoleRepository;
+import cn.sijay.oi.sys.service.SysFileService;
 import cn.sijay.oi.sys.service.SysLogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -85,9 +78,10 @@ public class AuthService {
     private final SysMenuRepository menuRepository;
     private final SysUserRoleRepository userRoleRepository;
     private final SysRoleMenuRepository roleMenuRepository;
-    private final FileService fileService;
+    private final SysFileService sysFileService;
     private final SysLogService logService;
     private final LoginLockService loginLockService;
+    private final SmLoginKeyManager smLoginKeyManager;
 
     /**
      * 密码编码器（BCrypt）；与 SysUserService 落库编码保持同一算法，
@@ -112,9 +106,11 @@ public class AuthService {
     public SysLoginVO login(SysLoginCmd cmd, String clientIp) {
         // 锁定校验前置：锁定期间拒绝一切登录请求（含密码正确的请求）
         loginLockService.checkNotLocked(cmd.getUsername());
+        String rawPassword = resolvePassword(cmd);
         SysUser user = userRepository.findByUsername(cmd.getUsername()).orElse(null);
-        if (user == null || !passwordEncoder.matches(cmd.getPassword(), user.getPassword())) {
-            // 连续失败计数（达到 5 次触发锁定）；登录失败留痕（ERROR 级别，防枚举文案不入库——只记尝试用户名与 IP）
+        if (user == null || !passwordEncoder.matches(rawPassword, user.getPassword())) {
+            // 连续失败计数（达到 5 次触发锁定）；登录失败留痕（ERROR 级别，防枚举文案不入库——只记尝试用户名与 IP，
+            // 密码（明文/密文/中间值）一律不入日志）
             loginLockService.recordFailure(cmd.getUsername());
             logService.record(LOG_MODULE_AUTH, LOG_ACTION_LOGIN, SysLog.LEVEL_ERROR, null, cmd.getUsername(),
                     clientIp, "/auth/login", "POST", "尝试登录用户: " + cmd.getUsername(),
@@ -139,6 +135,37 @@ public class AuthService {
     }
 
     /**
+     * 还原登录密码明文：携带 keyId 时按 SM2 私钥解密（国密加密登录），
+     * 缺省时按明文兼容处理。
+     *
+     * <p>解密失败（keyId 未知/在途窗口已过、密文损坏）抛 601008 并计入登录
+     * 失败锁定计数；解密过程不产生任何含密码明文/密文/中间值的日志。
+     *
+     * @param cmd 登录入参
+     * @return 明文密码（供 BCrypt 校验）
+     * @throws BusinessException 密码密文无效或已过期（601008）
+     */
+    private String resolvePassword(SysLoginCmd cmd) {
+        if (cmd.getKeyId() == null || cmd.getKeyId().isBlank()) {
+            return cmd.getPassword();
+        }
+        String privateKeyHex = smLoginKeyManager.privateKeyOf(cmd.getKeyId());
+        if (privateKeyHex == null) {
+            loginLockService.recordFailure(cmd.getUsername());
+            throw new BusinessException(BusinessErrorCode.USER_PASSWORD_DECRYPT_FAILED);
+        }
+        try {
+            byte[] plainBytes = SmUtil.sm2Decrypt(SmUtil.hexToBytes(cmd.getPassword()), privateKeyHex);
+            return new String(plainBytes, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            // 密文损坏/格式非法：按登录失败处理（计入锁定计数），日志只记原因类型不记内容
+            loginLockService.recordFailure(cmd.getUsername());
+            log.warn("[AuthService] SM2 密码解密失败: username={}, reason={}", cmd.getUsername(), e.getClass().getSimpleName());
+            throw new BusinessException(BusinessErrorCode.USER_PASSWORD_DECRYPT_FAILED);
+        }
+    }
+
+    /**
      * 注销当前登录会话（令牌作废，前端退出登录入口）。
      */
     public void logout() {
@@ -154,7 +181,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public SysProfileVO getProfile() {
         SysUser user = userRepository.findById(StpUtil.getLoginIdAsLong())
-                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
+                                     .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
         return SysProfileVO.from(user);
     }
 
@@ -170,7 +197,7 @@ public class AuthService {
     @Transactional
     public SysProfileVO updateProfile(SysProfileUpdateCmd cmd) {
         SysUser user = userRepository.findById(StpUtil.getLoginIdAsLong())
-                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
+                                     .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
         user.setNickname(cmd.getNickname());
         user.setMobile(cmd.getMobile());
         user.setEmail(cmd.getEmail());
@@ -191,7 +218,7 @@ public class AuthService {
     @Transactional
     public void changePassword(SysChangePasswordCmd cmd) {
         SysUser user = userRepository.findById(StpUtil.getLoginIdAsLong())
-                .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
+                                     .orElseThrow(() -> new BusinessException(BusinessErrorCode.USER_NOT_FOUND));
         if (!passwordEncoder.matches(cmd.getOldPassword(), user.getPassword())) {
             throw new BusinessException(BusinessErrorCode.USER_OLD_PASSWORD_ERROR);
         }
@@ -208,7 +235,7 @@ public class AuthService {
      * 上传头像（统一文件管理服务委托）。
      *
      * <p>调用规范约定：认证模块不再自行处理文件实体或存储路径，仅调用
-     * {@link FileService#uploadImage} 完成上传（图片白名单校验、大小限制、
+     * {@link SysFileService#uploadImage} 完成上传（图片白名单校验、大小限制、
      * 唯一标识与落盘均由文件服务统一实现），落库只保存返回的文件唯一 id。
      *
      * @param file 上传的图片文件
@@ -217,7 +244,7 @@ public class AuthService {
      *                           大小超限（606003）、落盘失败（606006）
      */
     public SysFileVO uploadAvatar(MultipartFile file) {
-        return fileService.uploadImage(file, "avatar");
+        return sysFileService.uploadImage(file, "avatar");
     }
 
     /**
@@ -242,15 +269,14 @@ public class AuthService {
         List<SysMenu> menus;
         if (loginId == ADMIN_USER_ID) {
             menus = menuRepository.findAll();
-        }
-        else {
+        } else {
             List<Long> roleIds = userRoleRepository.findByUserId(loginId)
-                    .stream().map(SysUserRole::getRoleId).distinct().toList();
+                                                   .stream().map(SysUserRole::getRoleId).distinct().toList();
             if (roleIds.isEmpty()) {
                 return List.of();
             }
             List<Long> menuIds = roleMenuRepository.findByRoleIdIn(roleIds)
-                    .stream().map(SysRoleMenu::getMenuId).distinct().toList();
+                                                   .stream().map(SysRoleMenu::getMenuId).distinct().toList();
             if (menuIds.isEmpty()) {
                 return List.of();
             }
@@ -271,17 +297,17 @@ public class AuthService {
      */
     private List<SysUserMenuVO> buildMenuTree(List<SysMenu> menus) {
         List<SysMenu> sorted = menus.stream()
-                .sorted(Comparator.comparing(SysMenu::getSort, Comparator.nullsLast(Comparator.naturalOrder()))
-                        .thenComparing(SysMenu::getId))
-                .toList();
+                                    .sorted(Comparator.comparing(SysMenu::getSort, Comparator.nullsLast(Comparator.naturalOrder()))
+                                                      .thenComparing(SysMenu::getId))
+                                    .toList();
         Map<Long, SysMenu> menuById = sorted.stream()
-                .collect(Collectors.toMap(SysMenu::getId, Function.identity()));
+                                            .collect(Collectors.toMap(SysMenu::getId, Function.identity()));
         Map<Long, List<SysMenu>> childrenByParent = sorted.stream()
-                .collect(Collectors.groupingBy(menu -> {
-                    // 父节点不在授权子集内（未授权目录/根节点）时上浮为根
-                    Long parentId = menu.getParentId() == null ? 0L : menu.getParentId();
-                    return menuById.containsKey(parentId) ? parentId : 0L;
-                }));
+                                                          .collect(Collectors.groupingBy(menu -> {
+                                                              // 父节点不在授权子集内（未授权目录/根节点）时上浮为根
+                                                              Long parentId = menu.getParentId() == null ? 0L : menu.getParentId();
+                                                              return menuById.containsKey(parentId) ? parentId : 0L;
+                                                          }));
         return buildChildren(childrenByParent.getOrDefault(0L, List.of()), childrenByParent);
     }
 
@@ -317,8 +343,7 @@ public class AuthService {
         try {
             StpUtil.kickout(targetUserId);
             log.info("[AuthService] 踢人下线成功: 操作人={}, 目标={}", ADMIN_USER_ID, targetUserId);
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             // 目标用户当前无会话（未登录/已下线）时框架抛 NotLoginException，业务语义为"已是离线状态"，幂等成功
             log.info("[AuthService] 踢人下线目标无有效会话，视为已离线: 目标={}", targetUserId);
         }

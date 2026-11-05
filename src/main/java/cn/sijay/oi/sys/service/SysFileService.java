@@ -1,13 +1,13 @@
-package cn.sijay.oi.file.service;
+package cn.sijay.oi.sys.service;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.sijay.oi.common.exception.BusinessErrorCode;
 import cn.sijay.oi.common.exception.BusinessException;
 import cn.sijay.oi.common.model.PageQuery;
-import cn.dev33.satoken.stp.StpUtil;
-import cn.sijay.oi.file.entity.SysFile;
-import cn.sijay.oi.file.model.SysFileQuery;
-import cn.sijay.oi.file.model.SysFileVO;
-import cn.sijay.oi.file.repository.SysFileRepository;
+import cn.sijay.oi.sys.entity.SysFile;
+import cn.sijay.oi.sys.model.SysFileQuery;
+import cn.sijay.oi.sys.model.SysFileVO;
+import cn.sijay.oi.sys.repository.SysFileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HexFormat;
 import java.util.Locale;
@@ -53,7 +52,7 @@ import java.util.Set;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FileService {
+public class SysFileService {
 
     /**
      * 存储根目录（应用工作目录相对路径）；文件按 yyyy/MM 月份分桶落盘。
@@ -162,8 +161,7 @@ public class FileService {
         try {
             Files.createDirectories(target.getParent());
             file.transferTo(target);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.error("[FileService] 文件落盘失败: {}", target, e);
             throw new BusinessException(BusinessErrorCode.FILE_UPLOAD_FAILED);
         }
@@ -278,8 +276,7 @@ public class FileService {
         Path physical = storageRoot().resolve(bucket).resolve(entity.getStorageName()).toAbsolutePath();
         try {
             Files.deleteIfExists(physical);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.warn("[FileService] 物理文件清理失败（记录已软删）: {}", physical, e);
         }
         log.info("[FileService] 文件删除成功: id={}, business={}", id, entity.getBusinessKey());
@@ -343,8 +340,7 @@ public class FileService {
             mac.init(new SecretKeySpec(accessSecret.getBytes(java.nio.charset.StandardCharsets.UTF_8), HMAC_ALGORITHM));
             byte[] digest = mac.doFinal((id + ":" + expires).getBytes(java.nio.charset.StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(digest);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new IllegalStateException("文件访问签名计算失败", e);
         }
     }
@@ -376,8 +372,7 @@ public class FileService {
         try {
             Object loginId = StpUtil.getLoginIdDefaultNull();
             return loginId == null ? 0L : Long.valueOf(loginId.toString());
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             // sa-token 上下文未激活（非 Web 线程调用）等场景：按系统操作人处理
             return 0L;
         }

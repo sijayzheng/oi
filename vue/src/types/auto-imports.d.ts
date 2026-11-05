@@ -10,6 +10,7 @@ export {}
 declare global {
   const ArrowDown: typeof import('@element-plus/icons-vue').ArrowDown
   const BusinessError: typeof import('../utils/request').BusinessError
+  const ChatDotRound: typeof import('@element-plus/icons-vue').ChatDotRound
   const Close: typeof import('@element-plus/icons-vue').Close
   const Delete: typeof import('@element-plus/icons-vue').Delete
   const Download: typeof import('@element-plus/icons-vue').Download
@@ -93,6 +94,7 @@ declare global {
   const mapWritableState: typeof import('pinia').mapWritableState
   const markRaw: typeof import('vue').markRaw
   const menuApi: typeof import('../api/menu').menuApi
+  const messageApi: typeof import('../api/message').messageApi
   const nextTick: typeof import('vue').nextTick
   const noticeApi: typeof import('../api/notice').noticeApi
   const onActivated: typeof import('vue').onActivated
@@ -363,7 +365,7 @@ declare global {
   export type { BusinessError, RequestConfig } from '../utils/request'
   import('../utils/request')
   // @ts-ignore
-  export type { SysLoginCmd, SysLoginVO, SysUserMenuVO, SysProfileVO, SysProfileUpdateCmd, SysChangePasswordCmd } from './auth.d'
+  export type { SysLoginCmd, SmKeyVO, SysLoginVO, SysUserMenuVO, SysProfileVO, SysProfileUpdateCmd, SysChangePasswordCmd } from './auth.d'
   import('./auth.d')
   // @ts-ignore
   export type { PageQuery, Result } from './common.d'
@@ -410,6 +412,7 @@ declare module 'vue' {
   interface ComponentCustomProperties {
     readonly ArrowDown: UnwrapRef<typeof import('@element-plus/icons-vue')['ArrowDown']>
     readonly BusinessError: UnwrapRef<typeof import('../utils/request')['BusinessError']>
+    readonly ChatDotRound: UnwrapRef<typeof import('@element-plus/icons-vue')['ChatDotRound']>
     readonly Close: UnwrapRef<typeof import('@element-plus/icons-vue')['Close']>
     readonly Delete: UnwrapRef<typeof import('@element-plus/icons-vue')['Delete']>
     readonly Download: UnwrapRef<typeof import('@element-plus/icons-vue')['Download']>
@@ -493,6 +496,7 @@ declare module 'vue' {
     readonly mapWritableState: UnwrapRef<typeof import('pinia')['mapWritableState']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
     readonly menuApi: UnwrapRef<typeof import('../api/menu')['menuApi']>
+    readonly messageApi: UnwrapRef<typeof import('../api/message')['messageApi']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
     readonly noticeApi: UnwrapRef<typeof import('../api/notice')['noticeApi']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>

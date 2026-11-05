@@ -1,16 +1,15 @@
 # 统一文件管理服务：接口文档与调用规范
 
-> 模块：`cn.sijay.oi.file`（表 `sys_file`，错误码段 606000~606999）
+> 模块：`cn.sijay.oi.sys`（表 `sys_file`，错误码段 606000~606999）
 > 生效日期：2026-11-03（全系统强制，新增业务场景必须遵循）
 
 ## 一、核心规范（全系统强制约定）
 
 1. **入口唯一**：系统内所有业务场景的文件上传、存储、查询、删除，统一经文件管理服务
-   （`FileService` / `FileController`）处理；业务模块**禁止**自行处理文件实体或存储路径。
-2. **只存文件 ID**：业务上传成功后，只接收并持久化返回的**文件唯一 id**（`SysFileVO.id`）；
-   **禁止**在业务表保存文件 URL、存储路径或文件名。
+   （`SysFileService` / `SysFileController`）处理；业务模块 **禁止**自行处理文件实体或存储路径。
+2. **只存文件 ID**：业务上传成功后，只接收并持久化返回的 **文件唯一 id**（`SysFileVO.id`）； **禁止**在业务表保存文件 URL、存储路径或文件名。
 3. **凭 ID 访问**：业务模块需要访问文件时，仅凭存储的文件 id 调用文件服务的查询接口
-   （`GET /file/{id}/url`）换取带签名与有效期的临时访问地址，**禁止**直接操作文件存储介质
+   （`GET /file/{id}/url`）换取带签名与有效期的临时访问地址， **禁止**直接操作文件存储介质
    （后端已移除 `/uploads/**` 静态映射，存储目录不对外暴露）。
 4. **删除须评估引用**：删除文件（`DELETE /file/{id}`）后，所有引用该文件 id 的业务数据
    将无法再换取访问地址；调用方删除前须自行确认引用关系。
@@ -77,7 +76,7 @@ DELETE /file/{id}
 
 - API 封装：`vue/src/api/file.ts`（`fileApi.upload/get/page/getUrl/remove`）。
 - `img src` 等场景使用 `toFileSrc(accessUrl)` 补齐 API 前缀（与 `request.ts` 的 baseURL 约定一致）。
-- 临时地址过期后重新调用 `fileApi.getUrl(id)`，**不要缓存长期使用**。
+- 临时地址过期后重新调用 `fileApi.getUrl(id)`， **不要缓存长期使用**。
 
 ## 四、业务接入示例（保存文件 ID）
 
@@ -91,32 +90,32 @@ const url = await fileApi.getUrl(fileId)        // /file/access/1?expires=...&si
 imgSrc.value = toFileSrc(url)
 ```
 
-后端业务模块同理：注入 `FileService`，上传取 `SysFileVO.getId()` 落库，展示调 `issueAccessUrl(id)`。
+后端业务模块同理：注入 `SysFileService`，上传取 `SysFileVO.getId()` 落库，展示调 `issueAccessUrl(id)`。
 参考实现：`AuthService.uploadAvatar`（auth → file 的委托改造）。
 
 ## 五、错误码（606 段）
 
-| 错误码 | 场景 | 消息 |
-|---|---|---|
-| 606001 | 未选择文件或 0 字节 | 上传文件不能为空 |
-| 606002 | 扩展名不在白名单 | 不支持的文件类型 |
-| 606003 | 超过大小上限（业务级或 multipart 硬上限） | 文件大小超出限制 |
-| 606004 | 文件不存在或已删除 | 文件不存在或已删除 |
-| 606005 | 访问签名无效或已过期 | 文件访问链接已失效 |
-| 606006 | 落盘 IO 异常 | 文件上传失败，请稍后重试 |
+| 错误码 | 场景                                      | 消息                     |
+|--------|-------------------------------------------|--------------------------|
+| 606001 | 未选择文件或 0 字节                       | 上传文件不能为空         |
+| 606002 | 扩展名不在白名单                          | 不支持的文件类型         |
+| 606003 | 超过大小上限（业务级或 multipart 硬上限） | 文件大小超出限制         |
+| 606004 | 文件不存在或已删除                        | 文件不存在或已删除       |
+| 606005 | 访问签名无效或已过期                      | 文件访问链接已失效       |
+| 606006 | 落盘 IO 异常                              | 文件上传失败，请稍后重试 |
 
 ## 六、配置项（application.yaml）
 
-| 配置 | 默认值 | 说明 |
-|---|---|---|
-| `file.upload.storage-path` | `uploads` | 存储根目录（工作目录相对路径），文件按 `yyyy/MM` 月份分桶落盘 |
-| `file.upload.allowed-extensions` | `jpg,...,7z` | 全局默认扩展名白名单 |
-| `file.upload.max-size` | `10MB` | 单文件大小上限（multipart 硬上限 `spring.servlet.multipart.max-file-size` 之内） |
-| `file.access.secret` | `oi-file-access-secret` | 访问地址 HMAC 签名密钥，**生产环境务必更换** |
-| `file.access.ttl-minutes` | `30` | 访问地址默认有效期（分钟） |
+| 配置                             | 默认值                  | 说明                                                                             |
+|----------------------------------|-------------------------|----------------------------------------------------------------------------------|
+| `file.upload.storage-path`       | `uploads`               | 存储根目录（工作目录相对路径），文件按 `yyyy/MM` 月份分桶落盘                    |
+| `file.upload.allowed-extensions` | `jpg,...,7z`            | 全局默认扩展名白名单                                                             |
+| `file.upload.max-size`           | `10MB`                  | 单文件大小上限（multipart 硬上限 `spring.servlet.multipart.max-file-size` 之内） |
+| `file.access.secret`             | `oi-file-access-secret` | 访问地址 HMAC 签名密钥，**生产环境务必更换**                                     |
+| `file.access.ttl-minutes`        | `30`                    | 访问地址默认有效期（分钟）                                                       |
 
 ## 七、存储与唯一标识
 
 - 唯一标识：文件名落盘为 `UUID + 原扩展名`，元数据主键 `sys_file.id` 为业务引用凭据。
-- 路径映射规则（收敛于 `FileService`，对外不暴露）：`{storage-path}/yyyy/MM/{uuid}.{ext}`。
+- 路径映射规则（收敛于 `SysFileService`，对外不暴露）：`{storage-path}/yyyy/MM/{uuid}.{ext}`。
 - 物理路径不出服务层；`SysFileVO` 不含 `storageName`。

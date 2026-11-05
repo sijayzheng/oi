@@ -25,6 +25,7 @@ export default defineConfig({
         {
           '@element-plus/icons-vue': [
             'ArrowDown',
+            'ChatDotRound',
             'Close',
             'Delete',
             'Download',

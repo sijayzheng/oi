@@ -35,6 +35,18 @@
           </el-breadcrumb-item>
         </el-breadcrumb>
         <div class="admin-header-right">
+          <el-badge
+            :value="messageStore.unread"
+            :hidden="!messageStore.unread"
+            :max="99"
+            class="admin-msg-badge"
+          >
+            <el-button link class="admin-msg-btn" @click="router.push('/message')">
+              <el-icon :size="18">
+                <Bell />
+              </el-icon>
+            </el-button>
+          </el-badge>
           <el-dropdown @command="onCommand">
             <span class="admin-user">
               <el-avatar v-if="auth.avatarUrl && !avatarLoadFailed" :size="26" :src="auth.avatarUrl"
@@ -91,6 +103,7 @@
  */
 import { clearDynamicRoutes, firstMenuPath } from '@/router'
 import { useAuthStore } from '@/stores/auth'
+import { useMessageStore } from '@/stores/message'
 import { useWindowSize } from '@vueuse/core'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import { useRoute, useRouter } from 'vue-router'
@@ -98,6 +111,7 @@ import { useRoute, useRouter } from 'vue-router'
 const route: RouteLocationNormalizedLoaded = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
+const messageStore = useMessageStore()
 const { width } = useWindowSize()
 
 /** 顶栏头像：进入布局时拉取个人资料（同步昵称 + 解析头像签名地址）；失败静默回退文字头像 */
@@ -106,6 +120,9 @@ onMounted(() => {
   auth.fetchProfile().catch(() => {
     avatarLoadFailed.value = true
   })
+  // 站内信实时推送：建立 SSE 连接（断线自动重连），并兜底拉取一次未读数
+  messageStore.connect()
+  messageStore.refreshUnread()
 })
 
 /** 文字头像文案：昵称（兜底"用户"）的首字符 */
@@ -288,8 +305,19 @@ const activeIndex = computed(() => route.path)
 
 .admin-header-right {
   display: flex;
+  gap: 14px;
   align-items: center;
   margin-left: auto;
+}
+
+/* 消息铃铛角标：与用户区等高对齐 */
+.admin-msg-badge {
+  display: flex;
+  align-items: center;
+}
+
+.admin-msg-btn {
+  padding: 4px;
 }
 
 .admin-user {

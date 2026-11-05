@@ -1,6 +1,6 @@
-package cn.sijay.oi.file.repository;
+package cn.sijay.oi.sys.repository;
 
-import cn.sijay.oi.file.entity.SysFile;
+import cn.sijay.oi.sys.entity.SysFile;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

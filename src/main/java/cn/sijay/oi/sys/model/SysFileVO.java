@@ -1,6 +1,6 @@
-package cn.sijay.oi.file.model;
+package cn.sijay.oi.sys.model;
 
-import cn.sijay.oi.file.entity.SysFile;
+import cn.sijay.oi.sys.entity.SysFile;
 import lombok.Data;
 
 import java.time.LocalDateTime;

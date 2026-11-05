@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { sm2, sm3 } from 'sm-crypto'
 /**
  * 认证状态：令牌、用户昵称、头像展示地址与菜单权限树（动态路由数据源）。
  *
@@ -34,10 +35,48 @@ export const useAuthStore = defineStore('auth', () => {
   const loaded = ref(false)
 
   /**
-   * 登录：校验由后端完成，成功后保存令牌与昵称。
+   * 国密公钥内存缓存（keyId 为键）；避免每次登录重复拉取。
+   * 仅缓存公钥等公开信息，不缓存任何密码相关数据。
+   */
+  const smKeyCache = new Map<string, SmKeyVO>()
+
+  /**
+   * 获取国密登录公钥：优先取未过期的内存缓存，否则拉取并校验完整性。
+   *
+   * <p>完整性校验：前端以 SM3 复算公钥摘要，与后端下发的 digest 比对，
+   * 不一致视为公钥在传输链路中被篡改，直接抛错终止登录（不使用被篡改公钥加密）。
+   */
+  async function getSmKey(): Promise<SmKeyVO> {
+    const cached = smKeyCache.get(smKeyCacheCurrentKeyId)
+    if (cached && new Date(cached.expireAt).getTime() > Date.now()) {
+      return cached
+    }
+    const key: SmKeyVO = await authApi.sm2PublicKey()
+    if (sm3(key.publicKey) !== key.digest) {
+      throw new Error('公钥完整性校验失败，请检查网络环境后重试')
+    }
+    smKeyCache.clear()
+    smKeyCache.set(key.keyId, key)
+    smKeyCacheCurrentKeyId = key.keyId
+    return key
+  }
+
+  /**
+   * 缓存中当前公钥的密钥标识（Map 取值辅助）。
+   */
+  let smKeyCacheCurrentKeyId = ''
+
+  /**
+   * 登录：先取国密公钥并对密码做 SM2 加密（C1C3C2），再提交密文登录。
+   *
+   * <p>加密格式约定：sm-crypto 输出的密文不含 04 前缀（C1 首字节），
+   * 后端 BouncyCastle 解码要求非压缩点编码，故拼接 '04' 前缀后提交。
+   * 全程密码明文只存在于本函数内的临时变量，不写入日志或任何持久化状态。
    */
   async function doLogin(data: SysLoginCmd) {
-    const vo = await authApi.login(data)
+    const key = await getSmKey()
+    const cipher = '04' + sm2.doEncrypt(data.password, key.publicKey, 1)
+    const vo = await authApi.login({ username: data.username, password: cipher, keyId: key.keyId })
     token.value = vo.tokenValue
     nickname.value = vo.nickname
   }

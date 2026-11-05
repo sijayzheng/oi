@@ -485,6 +485,58 @@ class AuthControllerTest extends AuthenticatedIntegrationTest {
                 .andExpect(jsonPath("$.message").value("登录失败次数过多，账号已锁定，请约 10 分钟后重试"));
     }
 
+    @Test
+    @Order(13)
+    @DisplayName("国密登录：公钥下发格式校验 + SM2 密文登录成功 + 错误 keyId/篡改密文返回 601008")
+    void sm2LoginFlow() throws Exception {
+        // 1. 公钥下发：公开接口（无令牌可访问），keyId/公钥/摘要/过期时间齐全
+        MvcResult keyResult = rawMockMvc.perform(get("/auth/sm2/public-key"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.keyId").value(not(emptyString())))
+                .andExpect(jsonPath("$.data.publicKey").value(not(emptyString())))
+                .andExpect(jsonPath("$.data.digest").value(not(emptyString())))
+                .andExpect(jsonPath("$.data.expireAt").value(not(emptyString())))
+                .andReturn();
+        String keyBody = keyResult.getResponse().getContentAsString();
+        // 先赋值 Object 再转 String：直接 String.valueOf(JsonPath.read(...)) 会命中 valueOf(char[]) 重载
+        Object keyIdObj = JsonPath.read(keyBody, "$.data.keyId");
+        Object publicKeyObj = JsonPath.read(keyBody, "$.data.publicKey");
+        Object digestObj = JsonPath.read(keyBody, "$.data.digest");
+        String keyId = String.valueOf(keyIdObj);
+        String publicKey = String.valueOf(publicKeyObj);
+        String digest = String.valueOf(digestObj);
+
+        // 公钥格式：04 前缀非压缩点 hex（130 字符）；摘要为 SM3(publicKey) hex（64 字符）
+        org.junit.jupiter.api.Assertions.assertEquals(130, publicKey.length());
+        org.junit.jupiter.api.Assertions.assertTrue(publicKey.startsWith("04"));
+        org.junit.jupiter.api.Assertions.assertEquals(cn.sijay.oi.common.util.SmUtil.sm3Hex(publicKey), digest);
+
+        // 2. 国密登录成功：用下发公钥 SM2 加密密码，携带 keyId 提交
+        String cipher = cn.sijay.oi.common.util.SmUtil.bytesToHex(
+                cn.sijay.oi.common.util.SmUtil.sm2Encrypt(NORMAL_PASSWORD.getBytes(java.nio.charset.StandardCharsets.UTF_8), publicKey));
+        rawMockMvc.perform(post("/auth/login").contentType("application/json")
+                        .content("{\"username\":\"%s\",\"password\":\"%s\",\"keyId\":\"%s\"}"
+                                .formatted(NORMAL_USERNAME, cipher, keyId)))
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.tokenValue").value(not(emptyString())));
+
+        // 3. 错误 keyId（未知密钥标识）→ 601008
+        rawMockMvc.perform(post("/auth/login").contentType("application/json")
+                        .content("{\"username\":\"%s\",\"password\":\"%s\",\"keyId\":\"not-exist-key\"}"
+                                .formatted(NORMAL_USERNAME, cipher)))
+                .andExpect(jsonPath("$.code").value(601008))
+                .andExpect(jsonPath("$.message").value("密码密文无效或已过期，请刷新页面后重试"));
+
+        // 4. 篡改密文（keyId 正确但密文损坏）→ 601008
+        String tampered = new StringBuilder(cipher).reverse().toString();
+        rawMockMvc.perform(post("/auth/login").contentType("application/json")
+                        .content("{\"username\":\"%s\",\"password\":\"%s\",\"keyId\":\"%s\"}"
+                                .formatted(NORMAL_USERNAME, tampered, keyId)))
+                .andExpect(jsonPath("$.code").value(601008))
+                .andExpect(jsonPath("$.message").value("密码密文无效或已过期，请刷新页面后重试"));
+    }
+
     /**
      * 保存菜单实体（必填字段补齐默认值）。
      *

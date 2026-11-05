@@ -1,29 +1,18 @@
 package cn.sijay.oi.auth.controller;
 
-import cn.sijay.oi.auth.model.SysChangePasswordCmd;
-import cn.sijay.oi.auth.model.SysLoginCmd;
-import cn.sijay.oi.auth.model.SysLoginVO;
-import cn.sijay.oi.auth.model.SysProfileUpdateCmd;
-import cn.sijay.oi.auth.model.SysProfileVO;
-import cn.sijay.oi.auth.model.SysUserMenuVO;
+import cn.sijay.oi.auth.model.*;
 import cn.sijay.oi.auth.service.AuthService;
-import cn.sijay.oi.common.Result;
+import cn.sijay.oi.auth.service.SmLoginKeyManager;
+import cn.sijay.oi.common.model.Result;
 import cn.sijay.oi.common.util.IpUtils;
 import cn.sijay.oi.common.web.BaseController;
-import cn.sijay.oi.file.model.SysFileVO;
+import cn.sijay.oi.sys.model.SysFileVO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -60,6 +49,7 @@ import java.util.List;
 public class AuthController extends BaseController {
 
     private final AuthService authService;
+    private final SmLoginKeyManager smLoginKeyManager;
 
     /**
      * 用户登录。
@@ -76,6 +66,23 @@ public class AuthController extends BaseController {
     @PostMapping("/login")
     public Result<SysLoginVO> login(@RequestBody @Valid SysLoginCmd cmd, HttpServletRequest request) {
         return ok(authService.login(cmd, IpUtils.getClientIp(request)));
+    }
+
+    /**
+     * 下发登录密码加密用 SM2 公钥（国密加密登录第一步）。
+     *
+     * <p>公开端点（登录前调用）；响应携带 keyId、公钥（C1C3C2 非压缩格式 hex）
+     * 与完整性摘要 {@code digest = SM3(publicKey)}——前端经独立 SM3 实现复算
+     * 摘要比对，校验公钥在传输链路中未被篡改。公钥由 SmLoginKeyManager 定期
+     * 轮换；配套私钥仅存于服务端，永不出现在响应或日志中。
+     *
+     * @return keyId + 公钥 + SM3 完整性摘要 + 过期时间
+     */
+    @GetMapping("/sm2/public-key")
+    public Result<SmKeyVO> sm2PublicKey() {
+        SmLoginKeyManager.SmKey key = smLoginKeyManager.currentKey();
+        return ok(new SmKeyVO(key.keyId(), key.publicHex(), SmLoginKeyManager.digestOf(key.publicHex()),
+                key.expireAt().toString()));
     }
 
     /**

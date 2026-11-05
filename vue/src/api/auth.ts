@@ -15,6 +15,16 @@ export const authApi = {
   },
 
   /**
+   * 获取国密登录公钥（公开接口）。
+   *
+   * <p>返回 SM2 公钥、密钥标识与 SM3 完整性摘要；前端登录前拉取，
+   * 摘要比对通过后用公钥加密密码明文。
+   */
+  sm2PublicKey() {
+    return request.get<SmKeyVO>('/auth/sm2/public-key')
+  },
+
+  /**
    * 退出登录；作废当前令牌。
    */
   logout() {

@@ -1,7 +1,7 @@
 package cn.sijay.oi.common.web;
 
-import cn.sijay.oi.common.Result;
 import cn.sijay.oi.common.exception.BusinessErrorCode;
+import cn.sijay.oi.common.model.Result;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

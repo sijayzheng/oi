@@ -1,14 +1,14 @@
-package cn.sijay.oi.file.controller;
+package cn.sijay.oi.sys.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.sijay.oi.auth.service.StpInterfaceImpl;
-import cn.sijay.oi.common.Result;
 import cn.sijay.oi.common.model.PageQuery;
+import cn.sijay.oi.common.model.Result;
 import cn.sijay.oi.common.web.BaseController;
-import cn.sijay.oi.file.entity.SysFile;
-import cn.sijay.oi.file.model.SysFileQuery;
-import cn.sijay.oi.file.model.SysFileVO;
-import cn.sijay.oi.file.service.FileService;
+import cn.sijay.oi.sys.entity.SysFile;
+import cn.sijay.oi.sys.model.SysFileQuery;
+import cn.sijay.oi.sys.model.SysFileVO;
+import cn.sijay.oi.sys.service.SysFileService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URLEncoder;
@@ -57,9 +51,9 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/file")
-public class FileController extends BaseController {
+public class SysFileController extends BaseController {
 
-    private final FileService fileService;
+    private final SysFileService sysFileService;
 
     /**
      * 上传文件。
@@ -75,7 +69,7 @@ public class FileController extends BaseController {
     @PostMapping("/upload")
     public Result<SysFileVO> upload(@RequestParam("file") MultipartFile file,
                                     @RequestParam(value = "businessKey", required = false) String businessKey) {
-        return ok(fileService.upload(file, businessKey));
+        return ok(sysFileService.upload(file, businessKey));
     }
 
     /**
@@ -86,7 +80,7 @@ public class FileController extends BaseController {
      */
     @GetMapping("/{id}")
     public Result<SysFileVO> get(@PathVariable @Positive(message = "文件 id 必须为正整数") Long id) {
-        return ok(fileService.getById(id));
+        return ok(sysFileService.getById(id));
     }
 
     /**
@@ -102,7 +96,7 @@ public class FileController extends BaseController {
     @SaCheckRole(StpInterfaceImpl.ROLE_ADMIN)
     @GetMapping("/page")
     public Result<List<SysFileVO>> page(@Valid SysFileQuery query, @Valid PageQuery page) {
-        var result = fileService.page(query, page);
+        var result = sysFileService.page(query, page);
         return ok(result.getContent(), result.getTotalElements());
     }
 
@@ -117,7 +111,7 @@ public class FileController extends BaseController {
      */
     @GetMapping("/{id}/url")
     public Result<String> issueUrl(@PathVariable @Positive(message = "文件 id 必须为正整数") Long id) {
-        return ok(fileService.issueAccessUrl(id));
+        return ok(sysFileService.issueAccessUrl(id));
     }
 
     /**
@@ -136,14 +130,14 @@ public class FileController extends BaseController {
     public ResponseEntity<FileSystemResource> access(@PathVariable Long id,
                                                      @RequestParam("expires") long expires,
                                                      @RequestParam("sign") String sign) {
-        SysFile entity = fileService.validateAccess(id, expires, sign);
-        FileSystemResource resource = new FileSystemResource(fileService.resolvePhysicalPath(entity));
+        SysFile entity = sysFileService.validateAccess(id, expires, sign);
+        FileSystemResource resource = new FileSystemResource(sysFileService.resolvePhysicalPath(entity));
         String contentType = entity.getContentType() == null || entity.getContentType().isBlank()
                 ? MediaType.APPLICATION_OCTET_STREAM_VALUE
                 : entity.getContentType();
         boolean inline = contentType.startsWith("image/");
         String encodedName = URLEncoder.encode(entity.getOriginalName(), StandardCharsets.UTF_8)
-                                      .replace("+", "%20");
+                                       .replace("+", "%20");
         return ResponseEntity.ok()
                              .header(HttpHeaders.CONTENT_TYPE, contentType)
                              .header(HttpHeaders.CONTENT_DISPOSITION,
@@ -162,7 +156,7 @@ public class FileController extends BaseController {
      */
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable @Positive(message = "文件 id 必须为正整数") Long id) {
-        fileService.delete(id);
+        sysFileService.delete(id);
         return ok();
     }
 }

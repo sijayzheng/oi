@@ -1,4 +1,4 @@
-package cn.sijay.oi.common;
+package cn.sijay.oi.common.model;
 
 import java.io.Serializable;
 
@@ -143,7 +143,7 @@ public record Result<T>(int code, String message, T data, Long total) implements
      * catch 到异常后快速包装返回；异常消息为空时回退为默认文案"系统异常"。
      * 注意：异常详情（堆栈）不应进入响应体，仅入日志。
      *
-     * @param e 异常对象；取其 {@code getMessage()} 作为响应消息
+     * @param e   异常对象；取其 {@code getMessage()} 作为响应消息
      * @param <T> 响应数据的业务类型
      * @return code=500、message=异常消息、data=null、total=null 的失败响应
      */

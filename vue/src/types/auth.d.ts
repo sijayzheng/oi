@@ -12,9 +12,36 @@ export interface SysLoginCmd {
    */
   username: string
   /**
-   * 登录密码；必填（明文提交，传输安全依赖 HTTPS）。
+   * 登录密码；必填。携带 keyId 时为 SM2 密文（C1C3C2 格式，04 前缀 hex 串），
+   * 未携带时为明文（兼容模式，传输安全依赖 HTTPS）。
    */
   password: string
+  /**
+   * 国密密钥标识；携带时表示 password 为 SM2 密文，后端按密钥标识匹配私钥解密。
+   */
+  keyId?: string
+}
+
+/**
+ * 国密登录公钥下发信息；对应 SmKeyVO。
+ */
+export interface SmKeyVO {
+  /**
+   * 密钥标识；登录提交时回传，供后端定位配套私钥（支持轮换期间在途密钥）。
+   */
+  keyId: string
+  /**
+   * SM2 公钥（非压缩点 hex 串，04 前缀，130 字符）。
+   */
+  publicKey: string
+  /**
+   * 公钥完整性摘要；SM3(publicKey UTF-8) hex 串，前端复算比对防传输篡改。
+   */
+  digest: string
+  /**
+   * 公钥过期时间（ISO-8601）；过期后需重新拉取。
+   */
+  expireAt: string
 }
 
 /**

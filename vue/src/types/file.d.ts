@@ -1,5 +1,5 @@
 /**
- * 统一文件管理类型定义；与后端 cn.sijay.oi.file.model.SysFileVO 对齐。
+ * 统一文件管理类型定义；与后端 cn.sijay.oi.sys.model.SysFileVO 对齐。
  *
  * <p>调用规范：业务模块上传文件后只持久化 {@link SysFileVO.id}（文件唯一标识），
  * 禁止保存 URL 或存储路径；展示时经 GET /file/{id}/url 换取带有效期的临时访问地址。

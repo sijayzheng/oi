@@ -19,6 +19,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  *   <li>{@code /auth/login} —— 登录接口本身（获取令牌的唯一入口）；</li>
  *   <li>{@code /file/access/**} —— 统一文件服务的公开访问端点，凭带有效期与
  *       HMAC 签名的访问地址即可获取文件流（签名校验由 FileService 实现）；</li>
+ *   <li>{@code /message/stream} —— 站内信 SSE 连接端点（EventSource 无法携带
+ *       自定义请求头），由控制器凭查询参数令牌手动校验，语义等同登录校验；</li>
  *   <li>{@code /actuator/**} —— 运维监控端点（Spring Boot Admin 客户端自监控依赖）；</li>
  *   <li>{@code /applications/**}、{@code /instances/**} 及静态资源 —— 本应用内嵌的
  *       Spring Boot Admin 服务端端点与页面资源（客户端注册/心跳不可携带业务令牌）；</li>
@@ -47,7 +49,9 @@ public class SaTokenConfigure implements WebMvcConfigurer {
         registry.addInterceptor(new SaInterceptor(handle ->
                         SaRouter.match("/**")
                                 .notMatch("/auth/login")
+                                .notMatch("/auth/sm2/public-key")
                                 .notMatch("/file/access/**")
+                                .notMatch("/message/stream")
                                 .notMatch("/actuator/**")
                                 .notMatch("/applications/**")
                                 .notMatch("/instances/**")

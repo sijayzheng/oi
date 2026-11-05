@@ -1,7 +1,7 @@
-package cn.sijay.oi.file.controller;
+package cn.sijay.oi.sys.controller;
 
-import cn.sijay.oi.file.service.FileService;
 import cn.sijay.oi.support.AuthenticatedIntegrationTest;
+import cn.sijay.oi.sys.service.SysFileService;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,15 +12,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.Duration;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * 文件管理模块集成测试，覆盖统一文件服务的全场景行为。
@@ -48,15 +42,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         // 收紧大小上限以便测试业务级超限校验
         "file.upload.max-size=1KB"
 })
-class FileControllerTest extends AuthenticatedIntegrationTest {
+class SysFileControllerTest extends AuthenticatedIntegrationTest {
 
     @Autowired
-    private FileService fileService;
+    private SysFileService sysFileService;
 
     /**
      * PNG 图片字节（1x1 透明 PNG 的文件头签名）。
      */
-    private static final byte[] PNG_BYTES = new byte[] { (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+    private static final byte[] PNG_BYTES = new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
 
     @Test
     @DisplayName("上传成功：返回文件 id 与签名访问地址，凭地址公开取流（免登录）")
@@ -72,7 +66,7 @@ class FileControllerTest extends AuthenticatedIntegrationTest {
                   .andExpect(content().contentType("image/png"))
                   .andExpect(content().bytes(PNG_BYTES))
                   .andExpect(MockMvcResultMatchers.header()
-                                          .string("Content-Disposition", containsString("demo.png")));
+                                                  .string("Content-Disposition", containsString("demo.png")));
     }
 
     @Test
@@ -80,20 +74,20 @@ class FileControllerTest extends AuthenticatedIntegrationTest {
     void uploadValidation() throws Exception {
         // 空文件 → 606001
         mockMvc.perform(multipart("/file/upload")
-                                .file(new MockMultipartFile("file", "empty.png", "image/png", new byte[0]))
-                                .param("businessKey", "avatar"))
+                       .file(new MockMultipartFile("file", "empty.png", "image/png", new byte[0]))
+                       .param("businessKey", "avatar"))
                .andExpect(jsonPath("$.code").value(606001))
                .andExpect(jsonPath("$.message").value("上传文件不能为空"));
 
         // 扩展名不在全局白名单（.exe）→ 606002
         mockMvc.perform(multipart("/file/upload")
-                                .file(new MockMultipartFile("file", "setup.exe", "application/octet-stream", PNG_BYTES)))
+                       .file(new MockMultipartFile("file", "setup.exe", "application/octet-stream", PNG_BYTES)))
                .andExpect(jsonPath("$.code").value(606002))
                .andExpect(jsonPath("$.message").value("不支持的文件类型"));
 
         // 无扩展名 → 606002
         mockMvc.perform(multipart("/file/upload")
-                                .file(new MockMultipartFile("file", "noext", "application/octet-stream", PNG_BYTES)))
+                       .file(new MockMultipartFile("file", "noext", "application/octet-stream", PNG_BYTES)))
                .andExpect(jsonPath("$.code").value(606002));
     }
 
@@ -103,7 +97,7 @@ class FileControllerTest extends AuthenticatedIntegrationTest {
         // 测试上下文配置 file.upload.max-size=1KB，上传 2KB 文本 → 606003
         byte[] bigBytes = new byte[2048];
         mockMvc.perform(multipart("/file/upload")
-                                .file(new MockMultipartFile("file", "big.txt", "text/plain", bigBytes)))
+                       .file(new MockMultipartFile("file", "big.txt", "text/plain", bigBytes)))
                .andExpect(jsonPath("$.code").value(606003))
                .andExpect(jsonPath("$.message").value("文件大小超出限制"));
     }
@@ -112,7 +106,7 @@ class FileControllerTest extends AuthenticatedIntegrationTest {
     @DisplayName("未登录访问：上传接口返回 401")
     void uploadRequiresLogin() throws Exception {
         rawMockMvc.perform(multipart("/file/upload")
-                                   .file(new MockMultipartFile("file", "demo.png", "image/png", PNG_BYTES)))
+                          .file(new MockMultipartFile("file", "demo.png", "image/png", PNG_BYTES)))
                   .andExpect(jsonPath("$.code").value(401));
     }
 
@@ -141,7 +135,7 @@ class FileControllerTest extends AuthenticatedIntegrationTest {
                .andExpect(jsonPath("$.code").value(400));
 
         // 已过期地址（服务层签发负 TTL）→ 606005
-        String expired = fileService.issueAccessUrl(uploaded.fileId(), Duration.ofSeconds(-60));
+        String expired = sysFileService.issueAccessUrl(uploaded.fileId(), Duration.ofSeconds(-60));
         mockMvc.perform(get(expired))
                .andExpect(jsonPath("$.code").value(606005));
     }
@@ -166,7 +160,7 @@ class FileControllerTest extends AuthenticatedIntegrationTest {
                .andExpect(jsonPath("$.total").value("1"));
 
         // 删除前签发一个合法地址；删除后该地址签名仍有效但文件已删 → 606004
-        String urlBeforeDelete = fileService.issueAccessUrl(uploaded.fileId());
+        String urlBeforeDelete = sysFileService.issueAccessUrl(uploaded.fileId());
         mockMvc.perform(delete("/file/" + uploaded.fileId()))
                .andExpect(jsonPath("$.code").value(200));
         mockMvc.perform(get("/file/" + uploaded.fileId()))
@@ -188,8 +182,8 @@ class FileControllerTest extends AuthenticatedIntegrationTest {
      */
     private UploadResult upload(String fileName, String contentType, String businessKey) throws Exception {
         String body = mockMvc.perform(multipart("/file/upload")
-                                              .file(new MockMultipartFile("file", fileName, contentType, PNG_BYTES))
-                                              .param("businessKey", businessKey))
+                                     .file(new MockMultipartFile("file", fileName, contentType, PNG_BYTES))
+                                     .param("businessKey", businessKey))
                              .andExpect(jsonPath("$.code").value(200))
                              .andReturn().getResponse().getContentAsString();
         Object idValue = JsonPath.read(body, "$.data.id");
