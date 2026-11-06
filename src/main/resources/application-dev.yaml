@@ -11,3 +11,9 @@ decorator:
         # Listener logs at DEBUG by default; INFO shows SQL without extra logger config.
         log-level: INFO
         multiline: true
+
+spring:
+  data:
+    redis:
+      # 本地开发 Redis 口令（生产环境请用 REDIS_PASSWORD 环境变量覆盖）
+      password: 123456

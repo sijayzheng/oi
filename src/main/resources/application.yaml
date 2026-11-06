@@ -21,6 +21,16 @@ spring:
       auto-commit: true
       pool-name: HikariCP
       keepalive-time: 60000
+  data:
+    # Redis 连接配置：Redisson 客户端（redisson-spring-boot-starter）据此建立连接，
+    # 同时作为 Spring Data Redis 的连接工厂（RedisTemplate 复用同一连接）。
+    # 生产环境通过环境变量覆盖，禁止在配置文件中明文写入口令。
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DATABASE:0}
+      password: ${REDIS_PASSWORD:}
+      timeout: 3000ms
   sql:
     init:
       mode: never

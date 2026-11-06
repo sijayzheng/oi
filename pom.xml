@@ -35,6 +35,7 @@
         <commons-io.version>2.22.0</commons-io.version>
         <commons-collections4.version>4.6.0</commons-collections4.version>
         <bouncycastle.version>1.86</bouncycastle.version>
+        <redisson.version>4.8.0</redisson.version>
     </properties>
     <dependencies>
         <dependency>
@@ -57,6 +58,27 @@
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-spring-boot4-starter</artifactId>
             <version>${sa-token.version}</version>
+        </dependency>
+        <dependency>
+            <!-- Sa-Token 会话数据落 Redis（提供 SaTokenDaoForRedisson，基于 RedissonClient 实现）；
+                 Redisson 客户端由下方的 redisson-spring-boot-starter 统一提供，故排除其自带版本 -->
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-redisson</artifactId>
+            <version>${sa-token.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.redisson</groupId>
+                    <artifactId>redisson</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <!-- Redisson 官方 Spring Boot Starter：自动装配 RedissonClient，
+                 并以其作为 Spring Data Redis 的连接工厂（RedisTemplate 同样可用）。
+                 4.x 系列面向 Spring Boot 4.x（redisson-spring-data-41），与本项目 4.1.2 对齐 -->
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>${redisson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
