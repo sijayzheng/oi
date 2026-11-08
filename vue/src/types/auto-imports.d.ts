@@ -8,6 +8,7 @@
 // biome-ignore lint: disable
 export {}
 declare global {
+  const AlarmClock: typeof import('@element-plus/icons-vue').AlarmClock
   const ArrowDown: typeof import('@element-plus/icons-vue').ArrowDown
   const BusinessError: typeof import('../utils/request').BusinessError
   const ChatDotRound: typeof import('@element-plus/icons-vue').ChatDotRound
@@ -23,12 +24,14 @@ declare global {
   const Fold: typeof import('@element-plus/icons-vue').Fold
   const Lock: typeof import('@element-plus/icons-vue').Lock
   const MagicStick: typeof import('@element-plus/icons-vue').MagicStick
+  const MessageBox: typeof import('@element-plus/icons-vue').MessageBox
   const Plus: typeof import('@element-plus/icons-vue').Plus
   const Refresh: typeof import('@element-plus/icons-vue').Refresh
   const RefreshLeft: typeof import('@element-plus/icons-vue').RefreshLeft
   const Search: typeof import('@element-plus/icons-vue').Search
   const Setting: typeof import('@element-plus/icons-vue').Setting
   const Share: typeof import('@element-plus/icons-vue').Share
+  const Tickets: typeof import('@element-plus/icons-vue').Tickets
   const User: typeof import('@element-plus/icons-vue').User
   const UserFilled: typeof import('@element-plus/icons-vue').UserFilled
   const View: typeof import('@element-plus/icons-vue').View
@@ -85,6 +88,7 @@ declare global {
   const isReadonly: typeof import('vue').isReadonly
   const isRef: typeof import('vue').isRef
   const isShallow: typeof import('vue').isShallow
+  const jobApi: typeof import('../api/job').jobApi
   const logApi: typeof import('../api/log').logApi
   const makeDestructurable: typeof import('@vueuse/core').makeDestructurable
   const mapActions: typeof import('pinia').mapActions
@@ -386,6 +390,9 @@ declare global {
   export type { ImportableTable, GenTable, GenTableColumn, GenTableDetail, GenColumnSaveCmd, GenTableSaveCmd } from './gen.d'
   import('./gen.d')
   // @ts-ignore
+  export type { JobTriggerType, JobRetryPolicy, JobConflictStrategy, JobExecuteStatus, JobTriggerSource, DeadLetterStatus, SysJobVO, SysJobCreateCmd, SysJobUpdateCmd, SysJobQuery, JobAttemptDetailVO, SysJobLogVO, SysJobDeadLetterVO, JobTriggerResult } from './job.d'
+  import('./job.d')
+  // @ts-ignore
   export type { LogLevel, SysLogVO, SysLogQuery } from './log.d'
   import('./log.d')
   // @ts-ignore
@@ -410,6 +417,7 @@ import { UnwrapRef } from 'vue'
 declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
+    readonly AlarmClock: UnwrapRef<typeof import('@element-plus/icons-vue')['AlarmClock']>
     readonly ArrowDown: UnwrapRef<typeof import('@element-plus/icons-vue')['ArrowDown']>
     readonly BusinessError: UnwrapRef<typeof import('../utils/request')['BusinessError']>
     readonly ChatDotRound: UnwrapRef<typeof import('@element-plus/icons-vue')['ChatDotRound']>
@@ -418,19 +426,18 @@ declare module 'vue' {
     readonly Download: UnwrapRef<typeof import('@element-plus/icons-vue')['Download']>
     readonly Edit: UnwrapRef<typeof import('@element-plus/icons-vue')['Edit']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
-    readonly ElLoading: UnwrapRef<typeof import('element-plus/es')['ElLoading']>
-    readonly ElMessage: UnwrapRef<typeof import('element-plus/es')['ElMessage']>
-    readonly ElMessageBox: UnwrapRef<typeof import('element-plus/es')['ElMessageBox']>
     readonly Expand: UnwrapRef<typeof import('@element-plus/icons-vue')['Expand']>
     readonly Fold: UnwrapRef<typeof import('@element-plus/icons-vue')['Fold']>
     readonly Lock: UnwrapRef<typeof import('@element-plus/icons-vue')['Lock']>
     readonly MagicStick: UnwrapRef<typeof import('@element-plus/icons-vue')['MagicStick']>
+    readonly MessageBox: UnwrapRef<typeof import('@element-plus/icons-vue')['MessageBox']>
     readonly Plus: UnwrapRef<typeof import('@element-plus/icons-vue')['Plus']>
     readonly Refresh: UnwrapRef<typeof import('@element-plus/icons-vue')['Refresh']>
     readonly RefreshLeft: UnwrapRef<typeof import('@element-plus/icons-vue')['RefreshLeft']>
     readonly Search: UnwrapRef<typeof import('@element-plus/icons-vue')['Search']>
     readonly Setting: UnwrapRef<typeof import('@element-plus/icons-vue')['Setting']>
     readonly Share: UnwrapRef<typeof import('@element-plus/icons-vue')['Share']>
+    readonly Tickets: UnwrapRef<typeof import('@element-plus/icons-vue')['Tickets']>
     readonly User: UnwrapRef<typeof import('@element-plus/icons-vue')['User']>
     readonly UserFilled: UnwrapRef<typeof import('@element-plus/icons-vue')['UserFilled']>
     readonly View: UnwrapRef<typeof import('@element-plus/icons-vue')['View']>
@@ -487,6 +494,7 @@ declare module 'vue' {
     readonly isReadonly: UnwrapRef<typeof import('vue')['isReadonly']>
     readonly isRef: UnwrapRef<typeof import('vue')['isRef']>
     readonly isShallow: UnwrapRef<typeof import('vue')['isShallow']>
+    readonly jobApi: UnwrapRef<typeof import('../api/job')['jobApi']>
     readonly logApi: UnwrapRef<typeof import('../api/log')['logApi']>
     readonly makeDestructurable: UnwrapRef<typeof import('@vueuse/core')['makeDestructurable']>
     readonly mapActions: UnwrapRef<typeof import('pinia')['mapActions']>

@@ -41,6 +41,14 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+# 任务调度模块配置（cn.sijay.oi.sys.job；任务定义存库可在线改，无需重启）
+oi:
+  job:
+    scheduler:
+      # 调度触发线程池大小：仅承载"到点触发"，不承载业务执行（执行在引擎工作线程池）
+      # 按实例任务规模调整；1000 并发任务场景默认值已足够
+      pool-size: 8
+
 # 统一文件管理服务配置（调用规范见 docs/file/README.md；业务模块只存文件 id，禁止存 URL/路径）
 file:
   upload:

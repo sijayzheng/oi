@@ -24,6 +24,7 @@ export default defineConfig({
         // Element Plus 图标组件：按需登记项目内使用的图标（新增图标须同步补充）
         {
           '@element-plus/icons-vue': [
+            'AlarmClock',
             'ArrowDown',
             'ChatDotRound',
             'Close',
@@ -34,12 +35,14 @@ export default defineConfig({
             'Fold',
             'Lock',
             'MagicStick',
+            'MessageBox',
             'Plus',
             'Refresh',
             'RefreshLeft',
             'Search',
             'Setting',
             'Share',
+            'Tickets',
             'User',
             'UserFilled',
             'View',

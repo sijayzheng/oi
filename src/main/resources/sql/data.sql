@@ -31,7 +31,10 @@ INSERT INTO sys_menu (id, parent_id, name, type, path, component, perms, icon, s
   (9, 7, '代码生成', 'MENU',      '/system/gen',  'system/GenView',   NULL, 'MagicStick', 2, TRUE, TRUE, 0),
   (10, 1, '在线用户', 'MENU',      '/monitor/online', 'monitor/OnlineUserView', NULL, 'Monitor', 6, TRUE, TRUE, 0),
   (11, 1, '日志管理', 'MENU',      '/system/log',  'system/LogView',   NULL, 'Document',  7, TRUE, TRUE, 0),
-  (12, 7, '站内信',   'MENU',      '/message',     'sys/MessageView',  NULL, 'ChatDotRound', 3, TRUE, TRUE, 0);
+  (12, 7, '站内信',   'MENU',      '/message',     'sys/MessageView',  NULL, 'ChatDotRound', 3, TRUE, TRUE, 0),
+  (13, 1, '任务调度', 'MENU',      '/system/job', 'system/JobView',   NULL, 'AlarmClock', 8, TRUE, TRUE, 0),
+  (14, 1, '执行记录', 'MENU',      '/system/job/log', 'system/JobLogView', NULL, 'Tickets', 9, TRUE, TRUE, 0),
+  (15, 1, '死信管理', 'MENU',      '/system/job/dead-letter', 'system/JobDeadLetterView', NULL, 'MessageBox', 10, TRUE, TRUE, 0);
 
 -- 显式主键插入后重置自增序列，避免后续新增菜单时主键冲突
 ALTER TABLE sys_menu ALTER COLUMN id RESTART WITH 100;
