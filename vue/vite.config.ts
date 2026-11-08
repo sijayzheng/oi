@@ -80,6 +80,27 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  optimizeDeps: {
+    // 预加载项目必需的组件/依赖：开发期一次性预构建，避免首屏逐模块转换抖动
+    include: [
+      'vue',
+      'vue-router',
+      'pinia',
+      'pinia-plugin-persistedstate',
+      'alova',
+      '@vueuse/core',
+      'dayjs',
+      'qs',
+      'sm-crypto',
+      // element-plus：根入口（源码直引）+ es 入口（ElementPlusResolver 按需组件统一从这里导入）
+      // 说明：按需组件的 style 深层入口（es/components/*/style/css）有意不列——
+      // optimizeDeps.include 的 glob 语法在当前 Vite + element-plus exports 结构下展开为空（实测），
+      // 手列 124 个组件目录不可维护；这些 CSS 包装模块很小，由启动扫描自动发现并缓存即可
+      'element-plus',
+      'element-plus/es',
+      '@element-plus/icons-vue',
+    ],
+  },
   server: {
     proxy: {
       // 开发环境代理：/api 前缀请求转发到后端服务（生产环境由网关/反向代理承担）

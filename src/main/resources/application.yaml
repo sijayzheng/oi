@@ -33,13 +33,30 @@ spring:
       timeout: 3000ms
   sql:
     init:
-      mode: never
+      mode: always
       schema-locations: classpath:sql/schema-h2.sql
   servlet:
     multipart:
       # 文件上传报文硬上限（统一文件服务的业务级大小限制见 file.upload.max-size）
       max-file-size: 10MB
       max-request-size: 10MB
+
+logging:
+  charset:
+    console: utf-8
+    file: utf-8
+  pattern:
+    console: '%red(%d{HH:mm:ss}) %green([%thread]) %highlight(%-5level) %boldMagenta(%logger%n) - %msg%n'
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger%n - %msg%n"
+  level:
+    root: info
+  file:
+    name: logs/${spring.application.name:oi}.log
+  logback:
+    rollingpolicy:
+      file-name-pattern: logs/${spring.application.name:oi}.%d{yyyy-MM-dd}.%i.log
+      max-file-size: 10MB
+      max-history: 100
 
 # 任务调度模块配置（cn.sijay.oi.sys.job；任务定义存库可在线改，无需重启）
 oi:
