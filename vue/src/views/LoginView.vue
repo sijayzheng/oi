@@ -12,8 +12,10 @@
           <el-input v-model="form.username" placeholder="用户名" :prefix-icon="User" autocomplete="username" />
         </el-form-item>
         <el-form-item prop="password">
-          <el-input ref="passwordRef" v-model="form.password" type="password" placeholder="密码" show-password
-            :prefix-icon="Lock" autocomplete="current-password" />
+          <el-input
+            ref="passwordRef" v-model="form.password" type="password" placeholder="密码" show-password
+            :prefix-icon="Lock" autocomplete="current-password"
+          />
         </el-form-item>
         <el-button type="primary" class="login-btn" size="large" :loading="loading" @click="submit">
           登 录
@@ -24,6 +26,8 @@
 </template>
 
 <script setup lang="ts">
+import type { InputInstance } from 'element-plus'
+import { useRoute, useRouter } from 'vue-router'
 /**
  * 登录页：用户名密码登录，成功后装载动态路由并跳转目标页面。
  *
@@ -34,8 +38,6 @@
  */
 import { firstMenuPath, registerDynamicRoutes } from '@/router'
 import { useAuthStore } from '@/stores/auth'
-import type { InputInstance } from 'element-plus'
-import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()

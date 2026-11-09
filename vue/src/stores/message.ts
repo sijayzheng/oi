@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { useAuthStore } from '@/stores/auth'
 import { messageApi } from '@/api/message'
+import { useAuthStore } from '@/stores/auth'
 /**
  * 站内信实时状态：未读角标 + SSE 长连接管理。
  *
@@ -92,7 +92,10 @@ export const useMessageStore = defineStore('message', () => {
       try {
         const payload = JSON.parse(e.data) as { id: string, msgType: string, title: string, senderId: string }
         unread.value++
-        lastEvent.value = { ...payload, ts: Date.now() }
+        lastEvent.value = {
+          ...payload,
+          ts: Date.now(),
+        }
       } catch {
         // 非 JSON 负载忽略（协议内不会出现）
       }

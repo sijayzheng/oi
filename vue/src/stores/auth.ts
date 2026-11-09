@@ -41,6 +41,11 @@ export const useAuthStore = defineStore('auth', () => {
   const smKeyCache = new Map<string, SmKeyVO>()
 
   /**
+   * 缓存中当前公钥的密钥标识（Map 取值辅助）。
+   */
+  let smKeyCacheCurrentKeyId = ''
+
+  /**
    * 获取国密登录公钥：优先取未过期的内存缓存，否则拉取并校验完整性。
    *
    * <p>完整性校验：前端以 SM3 复算公钥摘要，与后端下发的 digest 比对，
@@ -62,11 +67,6 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * 缓存中当前公钥的密钥标识（Map 取值辅助）。
-   */
-  let smKeyCacheCurrentKeyId = ''
-
-  /**
    * 登录：先取国密公钥并对密码做 SM2 加密（C1C3C2），再提交密文登录。
    *
    * <p>加密格式约定：sm-crypto 输出的密文不含 04 前缀（C1 首字节），
@@ -75,7 +75,7 @@ export const useAuthStore = defineStore('auth', () => {
    */
   async function doLogin(data: SysLoginCmd) {
     const key = await getSmKey()
-    const cipher = '04' + sm2.doEncrypt(data.password, key.publicKey, 1)
+    const cipher = `04${sm2.doEncrypt(data.password, key.publicKey, 1)}`
     const vo = await authApi.login({ username: data.username, password: cipher, keyId: key.keyId })
     token.value = vo.tokenValue
     nickname.value = vo.nickname

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="message-view">
     <!-- 顶部：箱体切换 + 工具栏 -->
     <el-card shadow="never" class="message-toolbar-card">
@@ -90,7 +90,6 @@
     <!-- 列表 -->
     <el-card shadow="never">
       <el-table
-        ref="tableRef"
         v-loading="loading"
         :data="rows"
         row-key="id"
@@ -563,7 +562,7 @@ async function openDetail(row: MessageItem) {
   // 附件解析：图片内嵌展示、文件提供下载链接
   detailAttachments.value = await Promise.all(vo.attachmentIds.map(async (id) => {
     const file = await fileApi.get(id)
-    const image = file.contentType?.startsWith('image/') ?? /\.(png|jpe?g|gif|webp)$/i.test(file.originalName ?? '')
+    const image = file.contentType?.startsWith('image/') ?? /\.(?:png|jpe?g|gif|webp)$/i.test(file.originalName ?? '')
     return {
       id,
       originalName: file.originalName ?? id,

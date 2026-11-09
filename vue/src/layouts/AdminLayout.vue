@@ -5,16 +5,38 @@
         <img src="/logo.jpg" alt="logo" class="admin-logo-img">
         <span v-if="!collapsed" class="admin-logo-text">Oi 管理系统</span>
       </div>
-      <el-menu :default-active="activeIndex" :collapse="collapsed" :collapse-transition="false" router
-        class="admin-menu" text-color="#606266">
-        <el-menu-item v-for="menu in menus" :key="menu.index" :index="menu.index">
-          <el-icon>
-            <component :is="menu.icon" />
-          </el-icon>
-          <template #title>
-            {{ menu.title }}
-          </template>
-        </el-menu-item>
+      <el-menu
+        :default-active="activeIndex" :collapse="collapsed" :collapse-transition="false" router
+        unique-opened class="admin-menu" text-color="#606266"
+      >
+        <template v-for="menu in menus" :key="menu.key">
+          <!-- 目录：渲染为可展开的子菜单（目录-菜单两级结构） -->
+          <el-sub-menu v-if="menu.children.length" :index="menu.key">
+            <template #title>
+              <el-icon>
+                <component :is="menu.icon" />
+              </el-icon>
+              <span>{{ menu.title }}</span>
+            </template>
+            <el-menu-item v-for="child in menu.children" :key="child.key" :index="child.index">
+              <el-icon>
+                <component :is="child.icon" />
+              </el-icon>
+              <template #title>
+                {{ child.title }}
+              </template>
+            </el-menu-item>
+          </el-sub-menu>
+          <!-- 根级菜单（未挂在目录下）：渲染为普通菜单项 -->
+          <el-menu-item v-else :index="menu.index">
+            <el-icon>
+              <component :is="menu.icon" />
+            </el-icon>
+            <template #title>
+              {{ menu.title }}
+            </template>
+          </el-menu-item>
+        </template>
       </el-menu>
     </el-aside>
 
@@ -49,8 +71,10 @@
           </el-badge>
           <el-dropdown @command="onCommand">
             <span class="admin-user">
-              <el-avatar v-if="auth.avatarUrl && !avatarLoadFailed" :size="26" :src="auth.avatarUrl"
-                class="admin-user-avatar" @error="avatarLoadFailed = true" />
+              <el-avatar
+                v-if="auth.avatarUrl && !avatarLoadFailed" :size="26" :src="auth.avatarUrl"
+                class="admin-user-avatar" @error="avatarLoadFailed = true"
+              />
               <el-avatar v-else :size="26" class="admin-user-avatar is-text">
                 {{ avatarText }}
               </el-avatar>
@@ -73,8 +97,11 @@
         </div>
       </el-header>
       <div class="admin-tabs">
-        <div v-for="tab in tabs" :key="tab.path" class="admin-tab" :class="{ 'is-active': tab.path === route.path }"
-          @click="router.push(tab.path)">
+        <div
+          v-for="tab in tabs" :key="tab.path" class="admin-tab"
+          :class="{ 'is-active': tab.path === route.path }"
+          @click="router.push(tab.path)"
+        >
           <span>{{ tab.title }}</span>
           <el-icon class="admin-tab-close" @click.stop="closeTab(tab)">
             <Close />
@@ -89,6 +116,9 @@
 </template>
 
 <script setup lang="ts">
+import type { RouteLocationNormalizedLoaded } from 'vue-router'
+import { useWindowSize } from '@vueuse/core'
+import { useRoute, useRouter } from 'vue-router'
 /**
  * 后台管理整体布局（Naive Admin 视觉规范）：白色侧边栏 + 面包屑顶栏 + 路由标签栏 + 主内容区。
  *
@@ -104,9 +134,6 @@
 import { clearDynamicRoutes, firstMenuPath } from '@/router'
 import { useAuthStore } from '@/stores/auth'
 import { useMessageStore } from '@/stores/message'
-import { useWindowSize } from '@vueuse/core'
-import type { RouteLocationNormalizedLoaded } from 'vue-router'
-import { useRoute, useRouter } from 'vue-router'
 
 const route: RouteLocationNormalizedLoaded = useRoute()
 const router = useRouter()
@@ -131,19 +158,45 @@ const avatarText = computed(() => {
   return text.charAt(0).toUpperCase() || '用'
 })
 
-/** 侧边栏菜单：菜单树拉平后的 MENU 节点（隐藏节点已由服务端剪枝，此处防御性兜底过滤），保持单层导航体验 */
-const menus = computed(() => {
-  const items: { index: string, title: string, icon: string }[] = []
-  const walk = (nodes: SysUserMenuVO[]) => {
-    for (const node of nodes) {
-      if (node.type === 'MENU' && node.path && node.visible !== false)
-        items.push({ index: node.path, title: node.name, icon: node.icon || 'Menu' })
-      if (node.children?.length)
-        walk(node.children)
-    }
+/**
+ * 侧边栏菜单：保留目录-菜单两级结构。
+ * - DIRECTORY 节点渲染为 el-sub-menu（可展开的父菜单）
+ * - MENU 节点渲染为 el-menu-item（可点击的页面入口）
+ * 隐藏节点（visible=false）已由服务端剪枝，此处防御性兜底过滤。
+ */
+interface MenuNode {
+  key: string
+  index: string
+  title: string
+  icon: string
+  children: MenuNode[]
+}
+
+const menus = computed<MenuNode[]>(() => {
+  const build = (nodes: SysUserMenuVO[]): MenuNode[] => {
+    return nodes
+      .filter(node => node.visible !== false)
+      .map((node) => {
+        const key = node.id ?? String(Math.random())
+        const title = node.name
+        const icon = node.icon || (node.type === 'DIRECTORY'
+          ? 'Folder'
+          : 'Menu')
+        // DIRECTORY: 递归子节点；MENU: 叶子节点
+        const children = node.type === 'DIRECTORY' && node.children?.length
+          ? build(node.children)
+          : []
+        return {
+          key,
+          index: node.path ?? key,
+          title,
+          icon,
+          children,
+        }
+      })
+      .filter(item => item.children.length > 0 || item.index) // 过滤空项
   }
-  walk(auth.menus)
-  return items
+  return build(auth.menus)
 })
 
 /** 面包屑：菜单权限树中查找当前路由，父级目录名 + 当前页名 */
@@ -173,6 +226,7 @@ interface RouteTab {
   path: string
   title: string
 }
+
 const tabs = ref<RouteTab[]>([])
 watch(() => route.path, (path) => {
   if (!path || path === '/login')
