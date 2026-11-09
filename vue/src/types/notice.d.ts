@@ -25,7 +25,7 @@ export interface SysNoticeCreateCmd {
   /**
    * 是否置顶；true=置顶；选填。
    */
-  topMarked?: boolean | null
+  topMarked?: boolean
 }
 
 /**
@@ -51,7 +51,7 @@ export interface SysNoticeUpdateCmd {
   /**
    * 是否置顶；true=置顶；选填。
    */
-  topMarked?: boolean | null
+  topMarked?: boolean
 }
 
 /**

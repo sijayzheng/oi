@@ -5,7 +5,7 @@
       <el-form-item label="通知标题">
         <el-input v-model="query.title" placeholder="模糊匹配" clearable @keyup.enter="search" />
       </el-form-item>
-      <el-form-item label="通知类型；0=通知 1=公告">
+      <el-form-item label="通知类型">
         <el-select v-model="query.noticeType" placeholder="全部" clearable class="filter-select">
           <el-option
             v-for="item in noticeTypeOptions" :key="item.value" :label="item.label"
@@ -69,7 +69,7 @@
       />
       <el-table-column
         v-if="visibleColumns.includes('noticeType')" prop="noticeType"
-        label="通知类型；0=通知 1=公告" min-width="130" show-overflow-tooltip
+        label="通知类型" min-width="130" show-overflow-tooltip
       >
         <template #default="{ row }">
           {{ noticeTypeOptions.find(o => o.value === row.noticeType)?.label ?? row.noticeType }}
@@ -91,11 +91,11 @@
       </el-table-column>
       <el-table-column
         v-if="visibleColumns.includes('createTime')" prop="createTime"
-        label="createTime" width="170"
+        label="创建时间" width="170"
       />
       <el-table-column
         v-if="visibleColumns.includes('updateTime')" prop="updateTime"
-        label="updateTime" width="170"
+        label="更新时间" width="170"
       />
       <el-table-column label="操作" fixed="right" width="140">
         <template #default="{ row }">
@@ -175,9 +175,9 @@
       <el-form-item label="通知标题" prop="title">
         <el-input v-model="editForm.title" placeholder="请输入通知标题" maxlength="100" />
       </el-form-item>
-      <el-form-item label="通知类型；0=通知 1=公告" prop="noticeType">
+      <el-form-item label="通知类型" prop="noticeType">
         <el-select
-          v-model="editForm.noticeType" placeholder="请选择通知类型；0=通知 1=公告"
+          v-model="editForm.noticeType" placeholder="请选择通知类型"
           clearable
         >
           <el-option
@@ -238,18 +238,18 @@ const {
   title: '',
   noticeType: '',
   content: '',
-  topMarked: undefined,
+  topMarked: false,
 }))
 
 /** 列设置候选与当前展示列 */
 const columnOptions = [
   { value: 'id', label: 'ID' },
   { value: 'title', label: '通知标题' },
-  { value: 'noticeType', label: '通知类型；0=通知 1=公告' },
+  { value: 'noticeType', label: '通知类型' },
   { value: 'publishTime', label: '发布时间' },
   { value: 'topMarked', label: '是否置顶' },
-  { value: 'createTime', label: 'createTime' },
-  { value: 'updateTime', label: 'updateTime' },
+  { value: 'createTime', label: '创建时间' },
+  { value: 'updateTime', label: '更新时间' },
 ]
 const visibleColumns = ref<string[]>(columnOptions.map(option => option.value))
 
@@ -258,7 +258,7 @@ const selection = ref<SysNoticeVO[]>([])
 
 /* ==================== 下拉选项 ==================== */
 
-/** 通知类型；0=通知 1=公告静态选项（由字段配置 options_json 生成） */
+/** 通知类型静态选项（由字段配置 options_json 生成） */
 const noticeTypeOptions = [
   { value: '0', label: '通知' },
   { value: '1', label: '公告' },
