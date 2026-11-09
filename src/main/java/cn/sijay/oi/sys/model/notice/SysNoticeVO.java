@@ -42,9 +42,9 @@ public class SysNoticeVO {
     private LocalDateTime publishTime;
 
     /**
-     * 是否置顶；1=置顶。
+     * 是否置顶；true=置顶。
      */
-    private Integer topMarked;
+    private Boolean topMarked;
 
     /**
      * 创建时间。

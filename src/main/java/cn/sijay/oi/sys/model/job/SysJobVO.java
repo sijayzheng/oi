@@ -48,11 +48,6 @@ public class SysJobVO {
     private String triggerValue;
 
     /**
-     * 时区；空为应用默认时区。
-     */
-    private String timeZone;
-
-    /**
      * 超时时间（毫秒）；0 表示不限时。
      */
     private Long timeoutMillis;
@@ -141,7 +136,6 @@ public class SysJobVO {
         vo.setTriggerType(entity.getTriggerType() == null ? null : entity.getTriggerType().name());
         vo.setTriggerTypeDesc(entity.getTriggerType() == null ? null : entity.getTriggerType().getDesc());
         vo.setTriggerValue(entity.getTriggerValue());
-        vo.setTimeZone(entity.getTimeZone());
         vo.setTimeoutMillis(entity.getTimeoutMillis());
         vo.setRetryPolicy(entity.getRetryPolicy() == null ? null : entity.getRetryPolicy().name());
         vo.setRetryPolicyDesc(entity.getRetryPolicy() == null ? null : entity.getRetryPolicy().getDesc());

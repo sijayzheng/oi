@@ -226,19 +226,18 @@ public class JobAlertService {
      *
      * @param triggerType     触发类型
      * @param triggerValue    触发值
-     * @param timeZone        时区
      * @param timeoutMillis   超时毫秒
      * @param retryPolicy     重试策略
      * @param maxRetryCount   最大重试次数
      * @param retryInitialInterval 初始重试间隔
      * @param retryMaxInterval     最大重试间隔
      */
-    record JobConfigSnapshot(String triggerType, String triggerValue, String timeZone,
+    record JobConfigSnapshot(String triggerType, String triggerValue,
                              Long timeoutMillis, String retryPolicy, Integer maxRetryCount,
                              Long retryInitialInterval, Long retryMaxInterval) {
         static JobConfigSnapshot of(SysJob job) {
             return new JobConfigSnapshot(
-                    job.getTriggerType().name(), job.getTriggerValue(), job.getTimeZone(),
+                    job.getTriggerType().name(), job.getTriggerValue(),
                     job.getTimeoutMillis(), job.getRetryPolicy().name(),
                     job.getMaxRetryCount(), job.getRetryInitialInterval(), job.getRetryMaxInterval());
         }

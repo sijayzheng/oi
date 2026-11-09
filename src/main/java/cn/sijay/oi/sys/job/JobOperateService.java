@@ -1,5 +1,6 @@
 package cn.sijay.oi.sys.job;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.sijay.oi.common.exception.BusinessErrorCode;
 import cn.sijay.oi.common.exception.BusinessException;
 import cn.sijay.oi.common.model.PageQuery;
@@ -13,7 +14,6 @@ import cn.sijay.oi.sys.repository.SysJobDeadLetterRepository;
 import cn.sijay.oi.sys.repository.SysJobLogRepository;
 import cn.sijay.oi.sys.repository.SysJobRepository;
 import cn.sijay.oi.sys.service.SysLogService;
-import cn.dev33.satoken.stp.StpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,7 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 任务调度运维服务：任务定义 CRUD、启停、手动触发、死信查询与重放、
@@ -83,7 +85,7 @@ public class JobOperateService {
      * @param cmd 创建入参
      * @return 已落库的任务
      * @throws BusinessException 业务键重复（608002）/ 触发配置非法（608003）/
-     *                           时区非法（608004）/ 重试配置非法（608005）
+     *                           重试配置非法（608005）
      */
     @Transactional
     public SysJob create(SysJobCreateCmd cmd) {
@@ -92,7 +94,7 @@ public class JobOperateService {
         }
         SysJob job = new SysJob();
         job.setJobKey(cmd.getJobKey());
-        applyTriggerConfig(job, cmd.getTriggerType(), cmd.getTriggerValue(), cmd.getTimeZone());
+        applyTriggerConfig(job, cmd.getTriggerType(), cmd.getTriggerValue());
         applyRetryConfig(job, cmd.getMaxRetryCount(), cmd.getRetryInitialInterval(), cmd.getRetryMaxInterval());
         job.setName(cmd.getName());
         job.setTimeoutMillis(cmd.getTimeoutMillis());
@@ -120,7 +122,7 @@ public class JobOperateService {
     @Transactional
     public SysJob update(Long id, SysJobUpdateCmd cmd) {
         SysJob job = requireJob(id);
-        applyTriggerConfig(job, cmd.getTriggerType(), cmd.getTriggerValue(), cmd.getTimeZone());
+        applyTriggerConfig(job, cmd.getTriggerType(), cmd.getTriggerValue());
         applyRetryConfig(job, cmd.getMaxRetryCount(), cmd.getRetryInitialInterval(), cmd.getRetryMaxInterval());
         job.setName(cmd.getName());
         job.setTimeoutMillis(cmd.getTimeoutMillis());
@@ -186,6 +188,37 @@ public class JobOperateService {
         audit("resume", "恢复任务: " + job.getJobKey(), null);
     }
 
+    /* ==================== CRON 预览 ==================== */
+
+    /**
+     * 计算 CRON 表达式的后续执行时间（可视化组件预览用）。
+     *
+     * <p>与调度器同源：同一 Spring {@link CronExpression} 解析，时区为应用默认时区，
+     * 保证预览时间与实际触发完全一致。
+     *
+     * @param expression 6 位 CRON 表达式（秒 分 时 日 月 周）
+     * @param count      预览次数（1~10）
+     * @return 按时间升序的后续执行时间（yyyy-MM-dd HH:mm:ss）
+     * @throws BusinessException 表达式非法（608003）
+     */
+    public List<String> nextCronTimes(String expression, int count) {
+        if (!CronExpression.isValidExpression(expression)) {
+            throw new BusinessException(BusinessErrorCode.JOB_TRIGGER_INVALID);
+        }
+        CronExpression cron = CronExpression.parse(expression.trim());
+        LocalDateTime next = LocalDateTime.now().withNano(0);
+        List<String> times = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            next = cron.next(next);
+            // 理论上不可达（合法表达式必有后继），防御性兜底
+            if (next == null) {
+                break;
+            }
+            times.add(next.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        }
+        return times;
+    }
+
     /* ==================== 触发与执行记录 ==================== */
 
     /**
@@ -238,11 +271,11 @@ public class JobOperateService {
             probe.setEnabled(query.getEnabled());
         }
         org.springframework.data.domain.ExampleMatcher matcher = org.springframework.data.domain.ExampleMatcher.matching()
-                .withStringMatcher(org.springframework.data.domain.ExampleMatcher.StringMatcher.CONTAINING)
-                .withIgnoreCase()
-                .withIgnorePaths("id", "timeoutMillis", "maxRetryCount", "retryInitialInterval",
-                        "retryMaxInterval", "alertFailureThreshold", "createBy", "updateBy",
-                        "createTime", "updateTime", "deleted");
+                                                                                                               .withStringMatcher(org.springframework.data.domain.ExampleMatcher.StringMatcher.CONTAINING)
+                                                                                                               .withIgnoreCase()
+                                                                                                               .withIgnorePaths("id", "timeoutMillis", "maxRetryCount", "retryInitialInterval",
+                                                                                                                       "retryMaxInterval", "alertFailureThreshold", "createBy", "updateBy",
+                                                                                                                       "createTime", "updateTime", "deleted");
         return jobRepository.findAll(org.springframework.data.domain.Example.of(probe, matcher),
                 page.toPageRequest());
     }
@@ -255,17 +288,18 @@ public class JobOperateService {
      * @param source    触发来源过滤；空为全部
      * @param beginTime 开始时间下限
      * @param endTime   开始时间上限
-     * @param page      分页参数
-     * @return 分页结果（固定按开始时间倒序）
+     * @param page      分页与排序参数（未指定排序字段时默认按开始时间倒序）
+     * @return 分页结果
      */
     @Transactional(readOnly = true)
     public Page<SysJobLog> pageLogs(String jobKey, String status, String source,
                                     LocalDateTime beginTime, LocalDateTime endTime, PageQuery page) {
         page.validate();
+        PageRequest pageRequest = page.sortField() == null
+                ? PageRequest.of(page.pageNum() - 1, page.pageSize(), Sort.by(Sort.Direction.DESC, "startTime"))
+                : page.toPageRequest();
         return jobLogRepository.search(normalize(jobKey), normalize(status), normalize(source),
-                beginTime, endTime,
-                PageRequest.of(page.pageNum() - 1, page.pageSize(),
-                        Sort.by(Sort.Direction.DESC, "startTime")));
+                beginTime, endTime, pageRequest);
     }
 
     /**
@@ -277,7 +311,7 @@ public class JobOperateService {
     @Transactional(readOnly = true)
     public SysJobLog getLog(Long logId) {
         return jobLogRepository.findById(logId)
-                .orElseThrow(() -> new BusinessException(BusinessErrorCode.JOB_LOG_NOT_FOUND));
+                               .orElseThrow(() -> new BusinessException(BusinessErrorCode.JOB_LOG_NOT_FOUND));
     }
 
     /* ==================== 死信管理 ==================== */
@@ -287,15 +321,17 @@ public class JobOperateService {
      *
      * @param jobKey 任务业务键过滤；空为全部
      * @param status 处理状态过滤；空为全部
-     * @param page   分页参数
-     * @return 分页结果（按产生时间倒序）
+     * @param page   分页与排序参数（未指定排序字段时默认按产生时间倒序）
+     * @return 分页结果
      */
     @Transactional(readOnly = true)
     public Page<SysJobDeadLetter> pageDeadLetters(String jobKey, String status, PageQuery page) {
         page.validate();
-        return deadLetterRepository.search(normalize(jobKey), normalize(status), null, null,
-                PageRequest.of(page.pageNum() - 1, page.pageSize(),
-                        Sort.by(Sort.Direction.DESC, "createTime")));
+        PageRequest pageRequest = page.sortField() == null
+                ? PageRequest.of(page.pageNum() - 1, page.pageSize(),
+                Sort.by(Sort.Direction.DESC, "createTime"))
+                : page.toPageRequest();
+        return deadLetterRepository.search(normalize(jobKey), normalize(status), null, null, pageRequest);
     }
 
     /**
@@ -314,9 +350,9 @@ public class JobOperateService {
      */
     public JobExecutionEngine.JobExecutionResult replayDeadLetter(Long deadLetterId) {
         SysJobDeadLetter deadLetter = deadLetterRepository.findById(deadLetterId)
-                .orElseThrow(() -> new BusinessException(BusinessErrorCode.JOB_DEAD_LETTER_NOT_FOUND));
+                                                          .orElseThrow(() -> new BusinessException(BusinessErrorCode.JOB_DEAD_LETTER_NOT_FOUND));
         SysJob job = jobRepository.findById(deadLetter.getJobId())
-                .orElseThrow(() -> new BusinessException(BusinessErrorCode.JOB_REPLAY_TARGET_MISSING));
+                                  .orElseThrow(() -> new BusinessException(BusinessErrorCode.JOB_REPLAY_TARGET_MISSING));
         Runnable action = actionRegistry.lookup(deadLetter.getJobKey());
         if (action == null) {
             throw new BusinessException(BusinessErrorCode.JOB_REPLAY_TARGET_MISSING);
@@ -331,12 +367,12 @@ public class JobOperateService {
                 SysJobLog.TriggerSource.REPLAY);
         // 终态回写（重读死信，防执行期间被并发删除）
         deadLetterRepository.findById(deadLetterId)
-                .ifPresent(dl -> {
-                    dl.setStatus(result.success()
-                            ? SysJobDeadLetter.Status.RESOLVED.name()
-                            : SysJobDeadLetter.Status.REPLAY_FAILED.name());
-                    deadLetterRepository.save(dl);
-                });
+                            .ifPresent(dl -> {
+                                dl.setStatus(result.success()
+                                        ? SysJobDeadLetter.Status.RESOLVED.name()
+                                        : SysJobDeadLetter.Status.REPLAY_FAILED.name());
+                                deadLetterRepository.save(dl);
+                            });
         audit("replay", "重放死信: " + deadLetter.getJobKey() + "，结果=" + result.status(),
                 result.success() ? null : result.status());
         return result;
@@ -350,7 +386,7 @@ public class JobOperateService {
     @Transactional
     public void deleteDeadLetter(Long deadLetterId) {
         SysJobDeadLetter deadLetter = deadLetterRepository.findById(deadLetterId)
-                .orElseThrow(() -> new BusinessException(BusinessErrorCode.JOB_DEAD_LETTER_NOT_FOUND));
+                                                          .orElseThrow(() -> new BusinessException(BusinessErrorCode.JOB_DEAD_LETTER_NOT_FOUND));
         deadLetterRepository.delete(deadLetter);
         audit("deleteDeadLetter", "删除死信记录: id=" + deadLetterId + ", jobKey=" + deadLetter.getJobKey(), null);
     }
@@ -364,29 +400,22 @@ public class JobOperateService {
     @Transactional(readOnly = true)
     public SysJob requireJob(Long id) {
         return jobRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(BusinessErrorCode.JOB_NOT_FOUND));
+                            .orElseThrow(() -> new BusinessException(BusinessErrorCode.JOB_NOT_FOUND));
     }
 
     /* ==================== 私有辅助 ==================== */
 
     /**
-     * 校验并应用触发配置（CRON 解析 + 时区合法性 + 周期下限）。
+     * 校验并应用触发配置（CRON 解析 + 周期下限）；CRON 统一按应用默认时区求值。
      */
     private void applyTriggerConfig(SysJob job, cn.sijay.oi.sys.enums.JobTriggerType triggerType,
-                                    String triggerValue, String timeZone) {
+                                    String triggerValue) {
         if (triggerType == null || triggerValue == null || triggerValue.isBlank()) {
             throw new BusinessException(BusinessErrorCode.JOB_TRIGGER_INVALID);
         }
         if (triggerType == cn.sijay.oi.sys.enums.JobTriggerType.CRON) {
             if (!CronExpression.isValidExpression(triggerValue)) {
                 throw new BusinessException(BusinessErrorCode.JOB_TRIGGER_INVALID);
-            }
-            if (timeZone != null && !timeZone.isBlank()) {
-                try {
-                    ZoneId.of(timeZone.trim());
-                } catch (Exception e) {
-                    throw new BusinessException(BusinessErrorCode.JOB_TIMEZONE_INVALID);
-                }
             }
         } else {
             long period;
@@ -401,7 +430,6 @@ public class JobOperateService {
         }
         job.setTriggerType(triggerType);
         job.setTriggerValue(triggerValue.trim());
-        job.setTimeZone(timeZone == null || timeZone.isBlank() ? null : timeZone.trim());
     }
 
     /**

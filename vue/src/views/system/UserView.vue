@@ -57,8 +57,8 @@
     >
       <el-table-column type="selection" width="44" />
       <el-table-column v-if="visibleColumns.includes('id')" prop="id" label="ID" width="90" />
-      <el-table-column v-if="visibleColumns.includes('username')" prop="username" label="登录名" min-width="110" show-overflow-tooltip />
-      <el-table-column v-if="visibleColumns.includes('nickname')" prop="nickname" label="昵称" min-width="110" show-overflow-tooltip />
+      <el-table-column v-if="visibleColumns.includes('username')" prop="username" label="登录名" min-width="110" sortable="custom" show-overflow-tooltip />
+      <el-table-column v-if="visibleColumns.includes('nickname')" prop="nickname" label="昵称" min-width="110" sortable="custom" show-overflow-tooltip />
       <el-table-column v-if="visibleColumns.includes('mobile')" prop="mobile" label="手机号" width="130" show-overflow-tooltip />
       <el-table-column v-if="visibleColumns.includes('email')" prop="email" label="邮箱" min-width="160" show-overflow-tooltip />
       <el-table-column v-if="visibleColumns.includes('enabled')" prop="enabled" label="状态" width="90">
@@ -106,7 +106,7 @@
   </el-card>
 
   <!-- 新增用户 -->
-  <el-dialog v-model="createVisible" title="新增用户" width="560px" destroy-on-close>
+  <el-dialog v-model="createVisible" title="新增用户" width="780px" destroy-on-close>
     <el-form ref="createFormRef" :model="createForm" :rules="usernameRules" label-width="90px">
       <el-form-item label="登录名" prop="username">
         <el-input v-model="createForm.username" placeholder="2~50 位字母/数字/下划线" />
@@ -145,7 +145,7 @@
   </el-dialog>
 
   <!-- 编辑用户 -->
-  <el-dialog v-model="editVisible" title="编辑用户" width="560px" destroy-on-close>
+  <el-dialog v-model="editVisible" title="编辑用户" width="780px" destroy-on-close>
     <el-alert type="info" :closable="false" show-icon class="edit-tip">
       登录名与密码不支持修改（改密为独立安全操作）
     </el-alert>

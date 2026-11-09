@@ -263,11 +263,6 @@ public enum BusinessErrorCode implements ErrorCode {
     JOB_TRIGGER_INVALID(8, 3, "触发配置非法"),
 
     /**
-     * 时区配置非法；触发条件：time_zone 不是合法的时区标识（如 Asia/Shanghai）。
-     */
-    JOB_TIMEZONE_INVALID(8, 4, "时区配置非法"),
-
-    /**
      * 重试配置非法；触发条件：最大重试间隔小于初始间隔，或重试参数为负值。
      */
     JOB_RETRY_CONFIG_INVALID(8, 5, "重试配置非法"),

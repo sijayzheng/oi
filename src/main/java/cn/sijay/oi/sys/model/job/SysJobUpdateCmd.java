@@ -40,12 +40,6 @@ public class SysJobUpdateCmd {
     private String triggerValue;
 
     /**
-     * 时区；空为应用默认时区。
-     */
-    @Size(max = 50, message = "时区最长 50 字符")
-    private String timeZone;
-
-    /**
      * 超时时间（毫秒）；0 表示不限时。
      */
     @NotNull(message = "超时时间不能为 null")

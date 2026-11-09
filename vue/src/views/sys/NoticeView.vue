@@ -7,14 +7,20 @@
       </el-form-item>
       <el-form-item label="通知类型；0=通知 1=公告">
         <el-select v-model="query.noticeType" placeholder="全部" clearable class="filter-select">
-          <el-option v-for="item in noticeTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
+          <el-option
+            v-for="item in noticeTypeOptions" :key="item.value" :label="item.label"
+            :value="item.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="通知内容">
         <el-input v-model="query.content" placeholder="模糊匹配" clearable @keyup.enter="search" />
       </el-form-item>
-      <el-form-item label="是否置顶；1=置顶">
-        <el-input v-model="query.topMarked" placeholder="精确匹配" clearable @keyup.enter="search" />
+      <el-form-item label="是否置顶">
+        <el-select v-model="query.topMarked" placeholder="全部" clearable>
+          <el-option :value="true" label="已置顶" />
+          <el-option :value="false" label="未置顶" />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" :icon="Search" @click="search">
@@ -35,7 +41,10 @@
         <el-button type="primary" :icon="Plus" @click="openCreate">
           新增通知公告
         </el-button>
-        <el-button type="danger" plain :icon="Delete" :disabled="selection.length === 0" @click="handleBatchRemove">
+        <el-button
+          type="danger" plain :icon="Delete" :disabled="selection.length === 0"
+          @click="handleBatchRemove"
+        >
           批量删除
         </el-button>
       </div>
@@ -54,22 +63,49 @@
     >
       <el-table-column type="selection" width="44" />
       <el-table-column v-if="visibleColumns.includes('id')" prop="id" label="ID" width="90" />
-      <el-table-column v-if="visibleColumns.includes('title')" prop="title" label="通知标题" min-width="130" show-overflow-tooltip />
-      <el-table-column v-if="visibleColumns.includes('noticeType')" prop="noticeType" label="通知类型；0=通知 1=公告" min-width="130" show-overflow-tooltip>
+      <el-table-column
+        v-if="visibleColumns.includes('title')" prop="title" label="通知标题"
+        min-width="130" sortable="custom" show-overflow-tooltip
+      />
+      <el-table-column
+        v-if="visibleColumns.includes('noticeType')" prop="noticeType"
+        label="通知类型；0=通知 1=公告" min-width="130" show-overflow-tooltip
+      >
         <template #default="{ row }">
           {{ noticeTypeOptions.find(o => o.value === row.noticeType)?.label ?? row.noticeType }}
         </template>
       </el-table-column>
-      <el-table-column v-if="visibleColumns.includes('publishTime')" prop="publishTime" label="发布时间" width="170" />
-      <el-table-column v-if="visibleColumns.includes('topMarked')" prop="topMarked" label="是否置顶；1=置顶" min-width="130" show-overflow-tooltip />
-      <el-table-column v-if="visibleColumns.includes('createTime')" prop="createTime" label="createTime" width="170" />
-      <el-table-column v-if="visibleColumns.includes('updateTime')" prop="updateTime" label="updateTime" width="170" />
+      <el-table-column
+        v-if="visibleColumns.includes('publishTime')" prop="publishTime"
+        label="发布时间" width="170" sortable="custom"
+      />
+      <el-table-column
+        v-if="visibleColumns.includes('topMarked')" prop="topMarked"
+        label="是否置顶" width="90"
+      >
+        <template #default="{ row }">
+          <el-tag :type="row.topMarked ? 'warning' : 'info'">
+            {{ row.topMarked ? '已置顶' : '未置顶' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
+        v-if="visibleColumns.includes('createTime')" prop="createTime"
+        label="createTime" width="170"
+      />
+      <el-table-column
+        v-if="visibleColumns.includes('updateTime')" prop="updateTime"
+        label="updateTime" width="170"
+      />
       <el-table-column label="操作" fixed="right" width="140">
         <template #default="{ row }">
           <el-button link type="primary" @click="openEdit(row as SysNoticeVO)">
             编辑
           </el-button>
-          <el-popconfirm title="确认删除该通知公告？" confirm-button-text="删除" cancel-button-text="取消" @confirm="handleRemove(row as SysNoticeVO)">
+          <el-popconfirm
+            title="确认删除该通知公告？" confirm-button-text="删除"
+            cancel-button-text="取消" @confirm="handleRemove(row as SysNoticeVO)"
+          >
             <template #reference>
               <el-button link type="danger">
                 删除
@@ -94,24 +130,33 @@
   </el-card>
 
   <!-- 新增通知公告 -->
-  <el-dialog v-model="createVisible" title="新增通知公告" width="560px" destroy-on-close>
+  <el-dialog v-model="createVisible" title="新增通知公告" width="780px" destroy-on-close>
     <el-form ref="createFormRef" :model="createForm" :rules="createRules" label-width="100px">
       <el-form-item label="通知标题" prop="title">
         <el-input v-model="createForm.title" placeholder="请输入通知标题" maxlength="100" />
       </el-form-item>
-      <el-form-item label="通知类型；0=通知 1=公告" prop="noticeType">
-        <el-select v-model="createForm.noticeType" placeholder="请选择通知类型；0=通知 1=公告" clearable>
-          <el-option v-for="item in noticeTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
+      <el-form-item label="通知类型" prop="noticeType">
+        <el-select v-model="createForm.noticeType" placeholder="请选择通知类型" clearable>
+          <el-option
+            v-for="item in noticeTypeOptions" :key="item.value" :label="item.label"
+            :value="item.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="通知内容" prop="content">
-        <el-input v-model="createForm.content" type="textarea" :rows="4" placeholder="请输入通知内容" maxlength="2000" />
+        <el-input
+          v-model="createForm.content" type="textarea" :rows="4"
+          placeholder="请输入通知内容" maxlength="2000"
+        />
       </el-form-item>
       <el-form-item label="发布时间" prop="publishTime">
-        <el-date-picker v-model="createForm.publishTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" placeholder="请选择发布时间" />
+        <el-date-picker
+          v-model="createForm.publishTime" type="datetime"
+          value-format="YYYY-MM-DD HH:mm:ss" placeholder="请选择发布时间"
+        />
       </el-form-item>
-      <el-form-item label="是否置顶；1=置顶" prop="topMarked">
-        <el-input-number v-model="createForm.topMarked" :min="0" :step="1" step-strictly />
+      <el-form-item label="是否置顶" prop="topMarked">
+        <el-switch v-model="createForm.topMarked" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -125,24 +170,36 @@
   </el-dialog>
 
   <!-- 编辑通知公告 -->
-  <el-dialog v-model="editVisible" title="编辑通知公告" width="560px" destroy-on-close>
+  <el-dialog v-model="editVisible" title="编辑通知公告" width="780px" destroy-on-close>
     <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="100px">
       <el-form-item label="通知标题" prop="title">
         <el-input v-model="editForm.title" placeholder="请输入通知标题" maxlength="100" />
       </el-form-item>
       <el-form-item label="通知类型；0=通知 1=公告" prop="noticeType">
-        <el-select v-model="editForm.noticeType" placeholder="请选择通知类型；0=通知 1=公告" clearable>
-          <el-option v-for="item in noticeTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
+        <el-select
+          v-model="editForm.noticeType" placeholder="请选择通知类型；0=通知 1=公告"
+          clearable
+        >
+          <el-option
+            v-for="item in noticeTypeOptions" :key="item.value" :label="item.label"
+            :value="item.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="通知内容" prop="content">
-        <el-input v-model="editForm.content" type="textarea" :rows="4" placeholder="请输入通知内容" maxlength="2000" />
+        <el-input
+          v-model="editForm.content" type="textarea" :rows="4" placeholder="请输入通知内容"
+          maxlength="2000"
+        />
       </el-form-item>
       <el-form-item label="发布时间" prop="publishTime">
-        <el-date-picker v-model="editForm.publishTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" placeholder="请选择发布时间" />
+        <el-date-picker
+          v-model="editForm.publishTime" type="datetime"
+          value-format="YYYY-MM-DD HH:mm:ss" placeholder="请选择发布时间"
+        />
       </el-form-item>
-      <el-form-item label="是否置顶；1=置顶" prop="topMarked">
-        <el-input-number v-model="editForm.topMarked" :min="0" :step="1" step-strictly />
+      <el-form-item label="是否置顶" prop="topMarked">
+        <el-switch v-model="editForm.topMarked" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -190,7 +247,7 @@ const columnOptions = [
   { value: 'title', label: '通知标题' },
   { value: 'noticeType', label: '通知类型；0=通知 1=公告' },
   { value: 'publishTime', label: '发布时间' },
-  { value: 'topMarked', label: '是否置顶；1=置顶' },
+  { value: 'topMarked', label: '是否置顶' },
   { value: 'createTime', label: 'createTime' },
   { value: 'updateTime', label: 'updateTime' },
 ]
@@ -220,7 +277,7 @@ const createForm = reactive<SysNoticeCreateCmd>({
   noticeType: '',
   content: '',
   publishTime: null,
-  topMarked: 0,
+  topMarked: false,
 })
 
 /** 编辑行 id（Long 序列化为字符串） */
@@ -230,7 +287,7 @@ const editForm = reactive<SysNoticeUpdateCmd>({
   noticeType: '',
   content: '',
   publishTime: null,
-  topMarked: 0,
+  topMarked: false,
 })
 
 const createRules: FormRules = {
@@ -244,14 +301,6 @@ const createRules: FormRules = {
   content: [
     { required: true, message: '通知内容不能为空', trigger: 'blur' },
     { max: 2000, message: '通知内容最长 2000 字符', trigger: 'blur' },
-  ],
-  topMarked: [
-    {
-      type: 'number',
-      min: 0,
-      message: '是否置顶；1=置顶不能为负数',
-      trigger: 'blur',
-    },
   ],
 }
 
@@ -267,14 +316,6 @@ const editRules: FormRules = {
     { required: true, message: '通知内容不能为空', trigger: 'blur' },
     { max: 2000, message: '通知内容最长 2000 字符', trigger: 'blur' },
   ],
-  topMarked: [
-    {
-      type: 'number',
-      min: 0,
-      message: '是否置顶；1=置顶不能为负数',
-      trigger: 'blur',
-    },
-  ],
 }
 
 /* ==================== 操作 ==================== */
@@ -285,7 +326,7 @@ function openCreate() {
     noticeType: '',
     content: '',
     publishTime: null,
-    topMarked: 0,
+    topMarked: false,
   })
   createVisible.value = true
 }
@@ -314,7 +355,7 @@ function openEdit(row: SysNoticeVO) {
     noticeType: row.noticeType ?? '',
     content: row.content ?? '',
     publishTime: row.publishTime ?? null,
-    topMarked: row.topMarked ?? 0,
+    topMarked: row.topMarked ?? false,
   })
   editVisible.value = true
 }

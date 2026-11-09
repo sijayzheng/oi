@@ -111,7 +111,7 @@
   </el-card>
 
   <!-- 日志详情 -->
-  <el-dialog v-model="detailVisible" title="日志详情" width="680px" destroy-on-close>
+  <el-dialog v-model="detailVisible" title="日志详情" width="780px" destroy-on-close>
     <el-descriptions v-if="detail" :column="2" border>
       <el-descriptions-item label="日志 ID">
         {{ detail.id }}

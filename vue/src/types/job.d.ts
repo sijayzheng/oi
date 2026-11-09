@@ -50,8 +50,6 @@ export interface SysJobVO {
   triggerTypeDesc?: string
   /** 触发值；CRON 表达式或毫秒周期 */
   triggerValue: string
-  /** 时区；空为应用默认时区 */
-  timeZone?: string | null
   /** 超时毫秒；0=不限时 */
   timeoutMillis: string
   /** 重试策略 */
@@ -96,8 +94,6 @@ export interface SysJobCreateCmd {
   triggerType: JobTriggerType
   /** 触发值 */
   triggerValue: string
-  /** 时区 */
-  timeZone?: string
   /** 超时毫秒 */
   timeoutMillis?: string
   /** 重试策略 */

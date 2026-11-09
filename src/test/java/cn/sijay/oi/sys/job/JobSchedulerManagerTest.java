@@ -166,14 +166,13 @@ class JobSchedulerManagerTest {
     }
 
     @Test
-    @DisplayName("CRON 含时区：合法时区注册成功")
-    void cronWithTimezoneRegistered() {
-        SysJob job = fixedRateJob("test.tz", 1000, true);
+    @DisplayName("CRON 合法表达式：注册成功（按应用默认时区求值）")
+    void cronRegistered() {
+        SysJob job = fixedRateJob("test.cron", 1000, true);
         job.setTriggerType(JobTriggerType.CRON);
         job.setTriggerValue("0 * * * * *"); // 每分钟
-        job.setTimeZone("Asia/Shanghai");
         manager.register(job);
-        assertThat(manager.isRegistered("test.tz")).isTrue();
+        assertThat(manager.isRegistered("test.cron")).isTrue();
     }
 
     @Test

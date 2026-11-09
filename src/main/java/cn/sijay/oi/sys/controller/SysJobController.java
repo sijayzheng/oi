@@ -170,6 +170,23 @@ public class SysJobController extends BaseController {
                 "success", result.success()));
     }
 
+    /**
+     * CRON 表达式后续执行时间预览（可视化组件用）。
+     *
+     * <p>与调度器同源：同一 Spring {@code CronExpression} 解析，时区为应用默认时区，
+     * 保证预览时间与实际触发完全一致。
+     *
+     * @param expression 6 位 CRON 表达式（秒 分 时 日 月 周）
+     * @return 按时间升序的后续 5 次执行时间（yyyy-MM-dd HH:mm:ss）
+     */
+    @GetMapping("/cron/next-times")
+    public Result<List<String>> nextCronTimes(
+            @RequestParam @NotBlank(message = "CRON 表达式不能为空") String expression,
+            @RequestParam(defaultValue = "5") @Positive(message = "预览次数必须为正整数")
+            @org.hibernate.validator.constraints.Range(max = 10, message = "预览次数最多 10 次") int count) {
+        return ok(jobOperateService.nextCronTimes(expression, count));
+    }
+
     /* ==================== 执行详情页 ==================== */
 
     /**

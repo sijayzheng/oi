@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
  * public class ReportTask {
  *
  *     @OiScheduled(jobKey = "report.daily", name = "日报生成",
- *                  cron = "0 0 2 * * *", timeZone = "Asia/Shanghai")
+ *                  cron = "0 0 2 * * *")
  *     public void generateDaily() {
  *         // 原有业务逻辑，无需任何调度相关代码
  *     }
@@ -88,13 +88,6 @@ public @interface OiScheduled {
      * @return 周期毫秒数；未使用固定延迟时为 0
      */
     long fixedDelay() default 0;
-
-    /**
-     * 默认时区；CRON 表达式求值时区（如 Asia/Shanghai），空串表示应用默认时区。
-     *
-     * @return 时区标识
-     */
-    String timeZone() default "";
 
     /**
      * 默认任务超时时间（毫秒）；0 表示不限时。超时强制中断并标记 TIMEOUT。

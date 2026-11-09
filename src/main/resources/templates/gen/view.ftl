@@ -323,7 +323,7 @@ onMounted(load)
   </el-card>
 
   <!-- 新增${functionName} -->
-  <el-dialog v-model="createVisible" title="新增${functionName}" width="560px" destroy-on-close>
+  <el-dialog v-model="createVisible" title="新增${functionName}" width="780px" destroy-on-close>
     <el-form ref="createFormRef" :model="createForm" :rules="createRules" label-width="100px">
 <#list insertColumns as col>
       <el-form-item label="${col.label}" prop="${col.javaField}">
@@ -362,7 +362,7 @@ onMounted(load)
   </el-dialog>
 
   <!-- 编辑${functionName} -->
-  <el-dialog v-model="editVisible" title="编辑${functionName}" width="560px" destroy-on-close>
+  <el-dialog v-model="editVisible" title="编辑${functionName}" width="780px" destroy-on-close>
     <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="100px">
 <#list editColumns as col>
       <el-form-item label="${col.label}" prop="${col.javaField}">

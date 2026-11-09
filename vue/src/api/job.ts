@@ -81,6 +81,17 @@ export const jobApi = {
   },
 
   /**
+   * CRON 表达式后续执行时间预览（与调度器同源 Spring CronExpression，应用默认时区）。
+   *
+   * @param expression 6 位 CRON 表达式
+   * @param count      预览次数（1~10，默认 5）
+   * @return 按时间升序的后续执行时间（yyyy-MM-dd HH:mm:ss）
+   */
+  nextCronTimes(expression: string, count = 5) {
+    return request.get<string[]>('/job/cron/next-times', { expression, count }, { silent: true })
+  },
+
+  /**
    * 执行记录分页检索。
    *
    * @param params 过滤条件（jobKey/status/source/beginTime/endTime 全部选填）+ 分页参数

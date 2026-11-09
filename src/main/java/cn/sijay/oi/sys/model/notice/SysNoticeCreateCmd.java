@@ -46,9 +46,8 @@ public class SysNoticeCreateCmd {
     private LocalDateTime publishTime;
 
     /**
-     * 是否置顶；1=置顶；选填。
+     * 是否置顶；true=置顶；选填。
      */
-    @Min(value = 0, message = "是否置顶；1=置顶不能为负数")
-    private Integer topMarked;
+    private Boolean topMarked;
 
 }

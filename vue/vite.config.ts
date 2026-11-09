@@ -1,3 +1,4 @@
+import { existsSync, readdirSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 
 import vue from '@vitejs/plugin-vue'
@@ -8,6 +9,17 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
+
+// element-plus 按需组件的 style 深层入口清单：配置加载期从包目录自动生成（118 个组件）
+// 不用 optimizeDeps.include 的 glob 语法——实测在当前 Vite + element-plus exports 结构下
+// 展开为空（exportsValueGlobRe 以 "./" 前缀匹配 globSync 返回的裸路径，全部被过滤），
+// 故以文件系统枚举显式列出，组件库升级自动跟随，无需手工维护
+const elementPlusComponentsDir = fileURLToPath(new URL('./node_modules/element-plus/es/components', import.meta.url))
+const elementPlusStyleDeps = existsSync(elementPlusComponentsDir)
+  ? readdirSync(elementPlusComponentsDir)
+      .filter(name => existsSync(`${elementPlusComponentsDir}/${name}/style/css.mjs`))
+      .map(name => `element-plus/es/components/${name}/style/css`)
+  : []
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -93,25 +105,25 @@ export default defineConfig({
       'qs',
       'sm-crypto',
       // element-plus：根入口（源码直引）+ es 入口（ElementPlusResolver 按需组件统一从这里导入）
-      // 说明：按需组件的 style 深层入口（es/components/*/style/css）有意不列——
-      // optimizeDeps.include 的 glob 语法在当前 Vite + element-plus exports 结构下展开为空（实测），
-      // 手列 124 个组件目录不可维护；这些 CSS 包装模块很小，由启动扫描自动发现并缓存即可
       'element-plus',
       'element-plus/es',
+      // 按需组件的 style 深层入口（见顶部 elementPlusStyleDeps 生成逻辑）
+      ...elementPlusStyleDeps,
       '@element-plus/icons-vue',
     ],
   },
   server: {
+    port: 29977,
     proxy: {
       // 开发环境代理：/api 前缀请求转发到后端服务（生产环境由网关/反向代理承担）
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:29979',
         changeOrigin: true,
         rewrite: url => url.replace(/^\/api/, ''),
       },
       // 头像等上传文件静态资源（后端 uploads/ 目录映射）
       '/uploads': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:29979',
         changeOrigin: true,
       },
     },

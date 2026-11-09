@@ -16,8 +16,8 @@
       </div>
     </div>
 
-    <el-table v-loading="loading" :data="rows" row-key="id" border stripe>
-      <el-table-column prop="tableName" label="业务表" min-width="150" show-overflow-tooltip />
+    <el-table v-loading="loading" :data="rows" row-key="id" border stripe @sort-change="sortChange">
+      <el-table-column prop="tableName" label="业务表" min-width="150" sortable="custom" show-overflow-tooltip />
       <el-table-column prop="tableComment" label="表注释" min-width="130" show-overflow-tooltip />
       <el-table-column prop="className" label="类名主干" min-width="110" />
       <el-table-column prop="moduleName" label="模块" width="90" />
@@ -64,7 +64,7 @@
   </el-card>
 
   <!-- 导入表 -->
-  <el-dialog v-model="importVisible" title="导入业务表" width="520px" destroy-on-close>
+  <el-dialog v-model="importVisible" title="导入业务表" width="780px" destroy-on-close>
     <el-table v-loading="importLoading" :data="importTables" border max-height="420" highlight-current-row @row-click="(row: ImportableTable) => handleImport(row.tableName)">
       <el-table-column prop="tableName" label="业务表" min-width="160" />
       <el-table-column prop="tableComment" label="表注释" min-width="160" />
@@ -77,7 +77,7 @@
   </el-dialog>
 
   <!-- 编辑字段配置 -->
-  <el-dialog v-model="editVisible" title="编辑生成配置" width="92%" destroy-on-close class="gen-edit-dialog">
+  <el-dialog v-model="editVisible" title="编辑生成配置" width="780px" destroy-on-close class="gen-edit-dialog">
     <el-form ref="editFormRef" :model="tableForm" :rules="tableRules" inline label-width="90px">
       <el-form-item label="业务表">
         <el-input :model-value="rows.find(r => r.id === editId)?.tableName" disabled />
@@ -187,7 +187,7 @@
   </el-dialog>
 
   <!-- 产物预览 -->
-  <el-dialog v-model="previewVisible" title="生成产物预览" width="80%" destroy-on-close>
+  <el-dialog v-model="previewVisible" title="生成产物预览" width="780px" destroy-on-close>
     <el-tabs v-model="previewActive" type="border-card">
       <el-tab-pane v-for="(content, path) in previewFiles" :key="path" :name="path" :label="path.split('/').pop()">
         <div class="preview-path">
@@ -219,6 +219,7 @@ const {
   rows,
   load,
   pageChange,
+  sortChange,
 } = useTablePage<GenPageQuery, GenTable>(() => genApi.page({ pageNum: 1, pageSize: 10 }), () => ({}))
 
 /* ==================== 导入表 ==================== */

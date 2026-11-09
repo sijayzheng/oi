@@ -39,8 +39,8 @@
           @row-click="selectType"
           @sort-change="typeSortChange"
         >
-          <el-table-column prop="dictType" label="字典编码" min-width="130" show-overflow-tooltip />
-          <el-table-column prop="name" label="字典名称" min-width="120" show-overflow-tooltip />
+          <el-table-column prop="dictType" label="字典编码" min-width="130" sortable="custom" show-overflow-tooltip />
+          <el-table-column prop="name" label="字典名称" min-width="120" sortable="custom" show-overflow-tooltip />
           <el-table-column prop="enabled" label="状态" width="80">
             <template #default="{ row }">
               <el-tag :type="row.enabled ? 'success' : 'danger'">
@@ -119,8 +119,8 @@
           </div>
 
           <el-table v-loading="itemLoading" :data="itemRows" row-key="id" border stripe @sort-change="itemSortChange">
-            <el-table-column prop="itemCode" label="项编码" min-width="120" show-overflow-tooltip />
-            <el-table-column prop="itemLabel" label="项显示名" min-width="130" show-overflow-tooltip />
+            <el-table-column prop="itemCode" label="项编码" min-width="120" sortable="custom" show-overflow-tooltip />
+            <el-table-column prop="itemLabel" label="项显示名" min-width="130" sortable="custom" show-overflow-tooltip />
             <el-table-column prop="sort" label="排序号" width="80" sortable="custom" />
             <el-table-column prop="enabled" label="状态" width="80">
               <template #default="{ row }">
@@ -163,7 +163,7 @@
   </el-row>
 
   <!-- 新增字典类型 -->
-  <el-dialog v-model="typeCreateVisible" title="新增字典类型" width="520px" destroy-on-close>
+  <el-dialog v-model="typeCreateVisible" title="新增字典类型" width="780px" destroy-on-close>
     <el-form ref="typeCreateFormRef" :model="typeCreateForm" :rules="typeCreateRules" label-width="90px">
       <el-form-item label="字典编码" prop="dictType">
         <el-input v-model="typeCreateForm.dictType" placeholder="小写下划线格式（如 user_status），创建后不可修改" />
@@ -193,7 +193,7 @@
   </el-dialog>
 
   <!-- 编辑字典类型 -->
-  <el-dialog v-model="typeEditVisible" title="编辑字典类型" width="520px" destroy-on-close>
+  <el-dialog v-model="typeEditVisible" title="编辑字典类型" width="780px" destroy-on-close>
     <el-alert type="info" :closable="false" show-icon class="edit-tip">
       字典编码不支持修改（被字典项冗余引用）
     </el-alert>
@@ -223,7 +223,7 @@
   </el-dialog>
 
   <!-- 新增字典项 -->
-  <el-dialog v-model="itemCreateVisible" title="新增字典项" width="520px" destroy-on-close>
+  <el-dialog v-model="itemCreateVisible" title="新增字典项" width="780px" destroy-on-close>
     <el-form ref="itemCreateFormRef" :model="itemCreateForm" :rules="itemCreateRules" label-width="90px">
       <el-form-item label="所属字典">
         <el-input :model-value="itemCreateForm.dictType" disabled />
@@ -259,7 +259,7 @@
   </el-dialog>
 
   <!-- 编辑字典项 -->
-  <el-dialog v-model="itemEditVisible" title="编辑字典项" width="520px" destroy-on-close>
+  <el-dialog v-model="itemEditVisible" title="编辑字典项" width="780px" destroy-on-close>
     <el-alert type="info" :closable="false" show-icon class="edit-tip">
       所属字典与项编码不支持修改（itemCode 为业务实际存储值）
     </el-alert>

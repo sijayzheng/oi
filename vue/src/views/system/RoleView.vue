@@ -48,8 +48,8 @@
     >
       <el-table-column type="selection" width="44" />
       <el-table-column v-if="visibleColumns.includes('id')" prop="id" label="ID" width="90" />
-      <el-table-column v-if="visibleColumns.includes('code')" prop="code" label="角色编码" min-width="130" show-overflow-tooltip />
-      <el-table-column v-if="visibleColumns.includes('name')" prop="name" label="角色名称" min-width="130" show-overflow-tooltip />
+      <el-table-column v-if="visibleColumns.includes('code')" prop="code" label="角色编码" min-width="130" sortable="custom" show-overflow-tooltip />
+      <el-table-column v-if="visibleColumns.includes('name')" prop="name" label="角色名称" min-width="130" sortable="custom" show-overflow-tooltip />
       <el-table-column v-if="visibleColumns.includes('sort')" prop="sort" label="排序号" width="90" sortable="custom" />
       <el-table-column v-if="visibleColumns.includes('enabled')" prop="enabled" label="状态" width="90">
         <template #default="{ row }">
@@ -95,7 +95,7 @@
   </el-card>
 
   <!-- 新增角色 -->
-  <el-dialog v-model="createVisible" title="新增角色" width="520px" destroy-on-close>
+  <el-dialog v-model="createVisible" title="新增角色" width="780px" destroy-on-close>
     <el-form ref="createFormRef" :model="createForm" :rules="createRules" label-width="90px">
       <el-form-item label="角色编码" prop="code">
         <el-input v-model="createForm.code" placeholder="2~50 位字母/数字/下划线/连字符，创建后不可修改" />
@@ -128,7 +128,7 @@
   </el-dialog>
 
   <!-- 编辑角色 -->
-  <el-dialog v-model="editVisible" title="编辑角色" width="520px" destroy-on-close>
+  <el-dialog v-model="editVisible" title="编辑角色" width="780px" destroy-on-close>
     <el-alert type="info" :closable="false" show-icon class="edit-tip">
       角色编码不支持修改（权限逻辑以编码引用）
     </el-alert>

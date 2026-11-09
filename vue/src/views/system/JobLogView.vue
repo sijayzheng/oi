@@ -6,7 +6,10 @@
       </el-form-item>
       <el-form-item label="执行状态">
         <el-select v-model="query.status" placeholder="全部" clearable class="status-select">
-          <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+          <el-option
+            v-for="item in statusOptions" :key="item.value" :label="item.label"
+            :value="item.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="触发来源">
@@ -37,9 +40,12 @@
       </el-button>
     </div>
 
-    <el-table v-loading="loading" :data="rows" row-key="id" border stripe>
+    <el-table v-loading="loading" :data="rows" row-key="id" border stripe @sort-change="sortChange">
       <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="jobKey" label="任务键" min-width="150" show-overflow-tooltip />
+      <el-table-column
+        prop="jobKey" label="任务键" min-width="150" sortable="custom"
+        show-overflow-tooltip
+      />
       <el-table-column prop="jobName" label="任务名称" min-width="120" show-overflow-tooltip />
       <el-table-column label="触发来源" width="100">
         <template #default="{ row }">
@@ -142,13 +148,17 @@
       <el-table :data="detail.attempts" border size="small">
         <el-table-column prop="attemptNo" label="轮次" width="60">
           <template #default="{ row }">
-            {{ (row as JobAttemptDetailVO).attemptNo === 0 ? '首试' : `第 ${(row as JobAttemptDetailVO).attemptNo} 次` }}
+            {{
+              (row as JobAttemptDetailVO).attemptNo === 0 ? '首试' : `第 ${(row as JobAttemptDetailVO).attemptNo} 次`
+            }}
           </template>
         </el-table-column>
         <el-table-column label="状态" width="80">
           <template #default="{ row }">
             <el-tag :type="statusTagType((row as JobAttemptDetailVO).attemptStatus)" size="small">
-              {{ (row as JobAttemptDetailVO).attemptStatus === 'SUCCESS' ? '成功' : ((row as JobAttemptDetailVO).attemptStatus === 'TIMEOUT' ? '超时' : '失败') }}
+              {{
+                (row as JobAttemptDetailVO).attemptStatus === 'SUCCESS' ? '成功' : ((row as JobAttemptDetailVO).attemptStatus === 'TIMEOUT' ? '超时' : '失败')
+              }}
             </el-tag>
           </template>
         </el-table-column>
@@ -186,7 +196,7 @@
   </el-dialog>
 
   <!-- 堆栈查看 -->
-  <el-dialog v-model="stackVisible" title="异常堆栈" width="760px">
+  <el-dialog v-model="stackVisible" title="异常堆栈" width="780px">
     <pre class="error-pre">{{ showStack }}</pre>
   </el-dialog>
 </template>
@@ -214,7 +224,12 @@ const {
   search,
   reset,
   pageChange,
-} = useTablePage<{ jobKey?: string, status?: JobExecuteStatus, source?: JobTriggerSource }, SysJobLogVO>(
+  sortChange,
+} = useTablePage<{
+  jobKey?: string
+  status?: JobExecuteStatus
+  source?: JobTriggerSource
+}, SysJobLogVO>(
   data => jobApi.pageLogs(data),
   () => ({
     jobKey: jobKeyFilter.value,
@@ -257,12 +272,18 @@ async function openDetail(row: SysJobLogVO) {
 /** 状态 tag 颜色 */
 function statusTagType(status: JobExecuteStatus | string) {
   switch (status) {
-    case 'SUCCESS': return 'success'
-    case 'FAILED': return 'danger'
-    case 'TIMEOUT': return 'warning'
-    case 'DEAD': return 'danger'
-    case 'RUNNING': return 'primary'
-    default: return 'info'
+    case 'SUCCESS':
+      return 'success'
+    case 'FAILED':
+      return 'danger'
+    case 'TIMEOUT':
+      return 'warning'
+    case 'DEAD':
+      return 'danger'
+    case 'RUNNING':
+      return 'primary'
+    default:
+      return 'info'
   }
 }
 

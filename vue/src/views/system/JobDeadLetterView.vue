@@ -32,9 +32,12 @@
       </el-button>
     </div>
 
-    <el-table v-loading="loading" :data="rows" row-key="id" border stripe>
+    <el-table v-loading="loading" :data="rows" row-key="id" border stripe @sort-change="sortChange">
       <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="jobKey" label="任务键" min-width="150" show-overflow-tooltip />
+      <el-table-column
+        prop="jobKey" label="任务键" min-width="150" sortable="custom"
+        show-overflow-tooltip
+      />
       <el-table-column prop="jobName" label="任务名称" min-width="120" show-overflow-tooltip />
       <el-table-column label="处理状态" width="110">
         <template #default="{ row }">
@@ -72,7 +75,11 @@
           >
             重放
           </el-button>
-          <el-popconfirm title="确认删除该死信记录？" confirm-button-text="删除" cancel-button-text="取消" @confirm="handleRemove(row as SysJobDeadLetterVO)">
+          <el-popconfirm
+            title="确认删除该死信记录？" confirm-button-text="删除"
+            cancel-button-text="取消"
+            @confirm="handleRemove(row as SysJobDeadLetterVO)"
+          >
             <template #reference>
               <el-button link type="danger">
                 删除
@@ -147,6 +154,7 @@ const {
   search,
   reset,
   pageChange,
+  sortChange,
 } = useTablePage<{ jobKey?: string, status?: DeadLetterStatus }, SysJobDeadLetterVO>(
   data => jobApi.pageDeadLetters(data),
   () => ({
@@ -212,9 +220,12 @@ async function handleRemove(row: SysJobDeadLetterVO) {
 
 function statusTagType(status: DeadLetterStatus | string) {
   switch (status) {
-    case 'RESOLVED': return 'success'
-    case 'REPLAY_FAILED': return 'danger'
-    default: return 'warning'
+    case 'RESOLVED':
+      return 'success'
+    case 'REPLAY_FAILED':
+      return 'danger'
+    default:
+      return 'warning'
   }
 }
 

@@ -59,10 +59,10 @@ public class SysNotice {
     private LocalDateTime publishTime;
 
     /**
-     * 是否置顶；1=置顶。
+     * 是否置顶；true=置顶。
      */
     @Column(name = "top_marked")
-    private Integer topMarked;
+    private Boolean topMarked;
 
     /**
      * createBy。

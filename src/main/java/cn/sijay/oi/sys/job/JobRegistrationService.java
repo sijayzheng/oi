@@ -97,10 +97,9 @@ public class JobRegistrationService {
                     continue;
                 }
                 validateMethod(method, annotation);
-                Object beanRef = bean;
                 Runnable action = () -> {
                     try {
-                        method.invoke(beanRef);
+                        method.invoke(bean);
                     } catch (ReflectiveOperationException e) {
                         Throwable cause = e.getCause() == null ? e : e.getCause();
                         throw new RuntimeException("任务执行体调用失败: " + method.getName(), cause);
@@ -137,7 +136,6 @@ public class JobRegistrationService {
         job.setName(annotation.name().isBlank()
                 ? method.getDeclaringClass().getSimpleName() + "#" + method.getName() : annotation.name());
         applyDefaultTrigger(job, annotation);
-        job.setTimeZone(annotation.timeZone().isBlank() ? null : annotation.timeZone());
         job.setTimeoutMillis(annotation.timeoutMillis());
         job.setRetryPolicy(JobRetryPolicy.valueOf(annotation.retryPolicy()));
         job.setMaxRetryCount(annotation.maxRetryCount());

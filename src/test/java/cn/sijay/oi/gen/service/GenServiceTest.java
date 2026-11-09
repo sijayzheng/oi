@@ -79,11 +79,12 @@ class GenServiceTest {
         assertThat(content.getIsList()).isFalse();
         assertThat(content.getMaxLength()).isEqualTo(2000);
 
-        // 数值/布尔/时间：top_marked number + @Min(0)；publish_time datetime 且不进查询
+        // 布尔/时间：top_marked Boolean + switch 组件；publish_time datetime 且不进查询
         GenTableColumn topMarked = byField.get("topMarked");
-        assertThat(topMarked.getJavaType()).isEqualTo("Integer");
-        assertThat(topMarked.getHtmlType()).isEqualTo("number");
-        assertThat(topMarked.getMinLength()).isZero();
+        assertThat(topMarked.getJavaType()).isEqualTo("Boolean");
+        assertThat(topMarked.getTsType()).isEqualTo("boolean");
+        assertThat(topMarked.getHtmlType()).isEqualTo("switch");
+        assertThat(topMarked.getMinLength()).isNull();
         GenTableColumn publishTime = byField.get("publishTime");
         assertThat(publishTime.getJavaType()).isEqualTo("LocalDateTime");
         assertThat(publishTime.getHtmlType()).isEqualTo("datetime");

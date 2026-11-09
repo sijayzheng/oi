@@ -6,7 +6,10 @@
         <el-radio-group v-model="activeBox" @change="onBoxChange">
           <el-radio-button value="inbox">
             收件箱
-            <el-badge v-if="inboxUnreadTotal > 0" :value="inboxUnreadTotal" :max="99" class="box-badge" />
+            <el-badge
+              v-if="inboxUnreadTotal > 0" :value="inboxUnreadTotal" :max="99"
+              class="box-badge"
+            />
           </el-radio-button>
           <el-radio-button value="sent">
             发件箱
@@ -18,10 +21,16 @@
 
         <div class="message-actions">
           <el-button :icon="Refresh" circle @click="reload" />
-          <el-button v-if="activeBox === 'inbox'" :disabled="!selection.length" @click="batchMarkRead">
+          <el-button
+            v-if="activeBox === 'inbox'" :disabled="!selection.length"
+            @click="batchMarkRead"
+          >
             批量已读
           </el-button>
-          <el-button :disabled="!selection.length" @click="batchArchive(activeBox === 'archive' ? 0 : 1)">
+          <el-button
+            :disabled="!selection.length"
+            @click="batchArchive(activeBox === 'archive' ? 0 : 1)"
+          >
             {{ activeBox === 'archive' ? '取消归档' : '批量归档' }}
           </el-button>
           <el-button :disabled="!selection.length" type="danger" plain @click="batchTrash">
@@ -39,14 +48,20 @@
       <!-- 过滤行 -->
       <el-form inline class="message-filter">
         <el-form-item v-if="activeBox !== 'sent'" label="消息类型">
-          <el-select v-model="query.msgType" placeholder="全部" clearable class="filter-select" @change="search">
+          <el-select
+            v-model="query.msgType" placeholder="全部" clearable class="filter-select"
+            @change="search"
+          >
             <el-option label="系统通知" value="NOTICE" />
             <el-option label="私信" value="LETTER" />
             <el-option label="公告广播" value="BROADCAST" />
           </el-select>
         </el-form-item>
         <el-form-item v-if="activeBox === 'inbox'" label="已读状态">
-          <el-select v-model="query.readStatus" placeholder="全部" clearable class="filter-select filter-narrow" @change="search">
+          <el-select
+            v-model="query.readStatus" placeholder="全部" clearable
+            class="filter-select filter-narrow" @change="search"
+          >
             <el-option label="未读" :value="0" />
             <el-option label="已读" :value="1" />
           </el-select>
@@ -76,8 +91,8 @@
     <el-card shadow="never">
       <el-table
         ref="tableRef"
-        :data="rows"
         v-loading="loading"
+        :data="rows"
         row-key="id"
         @selection-change="(items: MessageItem[]) => selection = items"
       >
@@ -98,22 +113,35 @@
         </el-table-column>
         <el-table-column label="标题" min-width="200" show-overflow-tooltip>
           <template #default="{ row }">
-            <el-link type="primary" :underline="false" class="title-link" :class="{ 'is-unread': !isRead(row as MessageItem) }" @click="openDetail(row as MessageItem)">
+            <el-link
+              type="primary" :underline="false" class="title-link"
+              :class="{ 'is-unread': !isRead(row as MessageItem) }"
+              @click="openDetail(row as MessageItem)"
+            >
               {{ row.title }}
-              <el-tag v-if="row.status === 'WITHDRAWN'" size="small" type="info" disable-transitions class="withdrawn-tag">
+              <el-tag
+                v-if="row.status === 'WITHDRAWN'" size="small" type="info" disable-transitions
+                class="withdrawn-tag"
+              >
                 已撤回
               </el-tag>
             </el-link>
           </template>
         </el-table-column>
-        <el-table-column :label="activeBox === 'sent' ? '接收' : '发送'" width="110" show-overflow-tooltip>
+        <el-table-column
+          :label="activeBox === 'sent' ? '接收' : '发送'" width="110"
+          show-overflow-tooltip
+        >
           <template #default="{ row }">
             {{ partyLabel(row as MessageItem) }}
           </template>
         </el-table-column>
         <el-table-column label="附件" width="70">
           <template #default="{ row }">
-            <span v-if="row.attachmentIds.length" class="attachment-flag">📎 {{ row.attachmentIds.length }}</span>
+            <span
+              v-if="row.attachmentIds.length"
+              class="attachment-flag"
+            >📎 {{ row.attachmentIds.length }}</span>
             <span v-else>-</span>
           </template>
         </el-table-column>
@@ -230,7 +258,7 @@
     </el-drawer>
 
     <!-- 写消息对话框 -->
-    <el-dialog v-model="composeVisible" title="写消息" width="560px" destroy-on-close>
+    <el-dialog v-model="composeVisible" title="写消息" width="780px" destroy-on-close>
       <el-form ref="composeFormRef" :model="composeForm" :rules="composeRules" label-width="90px">
         <el-form-item label="消息类型" prop="msgType">
           <el-select v-model="composeForm.msgType" :disabled="!isAdmin" class="compose-type">
@@ -239,14 +267,23 @@
             <el-option label="私信" value="LETTER" />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="composeForm.msgType !== 'BROADCAST'" label="接收人" prop="receiverUsername">
+        <el-form-item
+          v-if="composeForm.msgType !== 'BROADCAST'" label="接收人"
+          prop="receiverUsername"
+        >
           <el-input v-model="composeForm.receiverUsername" placeholder="接收人登录名" clearable />
         </el-form-item>
         <el-form-item label="标题" prop="title">
-          <el-input v-model="composeForm.title" placeholder="消息标题" maxlength="100" show-word-limit />
+          <el-input
+            v-model="composeForm.title" placeholder="消息标题" maxlength="100"
+            show-word-limit
+          />
         </el-form-item>
         <el-form-item label="内容" prop="content">
-          <el-input v-model="composeForm.content" type="textarea" :rows="5" placeholder="消息内容" maxlength="4000" show-word-limit />
+          <el-input
+            v-model="composeForm.content" type="textarea" :rows="5" placeholder="消息内容"
+            maxlength="4000" show-word-limit
+          />
         </el-form-item>
         <el-form-item label="附件">
           <div class="compose-upload">
@@ -290,6 +327,7 @@
 </template>
 
 <script setup lang="ts">
+import { Refresh, RefreshLeft, Search } from '@element-plus/icons-vue'
 /**
  * 消息中心：站内信收件箱/发件箱/归档箱，覆盖系统通知、私信、公告广播三类消息。
  *
@@ -300,11 +338,10 @@
  */
 import { useWindowSize } from '@vueuse/core'
 import { ElNotification } from 'element-plus'
-import { Refresh, RefreshLeft, Search } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
+import { messageApi } from '@/api/message'
 import { useAuthStore } from '@/stores/auth'
 import { useMessageStore } from '@/stores/message'
-import { messageApi } from '@/api/message'
 
 const messageStore = useMessageStore()
 const auth = useAuthStore()
@@ -340,19 +377,33 @@ function isRead(row: MessageItem) {
 }
 
 function typeLabel(type: MessageType) {
-  return type === 'NOTICE' ? '系统通知' : type === 'LETTER' ? '私信' : '公告广播'
+  return type === 'NOTICE'
+    ? '系统通知'
+    : type === 'LETTER'
+      ? '私信'
+      : '公告广播'
 }
 
 function typeTag(type: MessageType) {
-  return type === 'NOTICE' ? 'primary' : type === 'LETTER' ? 'success' : 'warning'
+  return type === 'NOTICE'
+    ? 'primary'
+    : type === 'LETTER'
+      ? 'success'
+      : 'warning'
 }
 
 /** 收发相对方展示文案（收件箱看发送方，发件箱看接收方） */
 function partyLabel(row: MessageItem) {
   if (activeBox.value === 'sent') {
-    return row.msgType === 'BROADCAST' ? '全员' : `用户 ${row.receiverId}`
+    return row.msgType === 'BROADCAST'
+      ? '全员'
+      : `用户 ${row.receiverId}`
   }
-  return row.senderId === '0' ? '系统' : row.msgType === 'BROADCAST' ? '全员广播' : `用户 ${row.senderId}`
+  return row.senderId === '0'
+    ? '系统'
+    : row.msgType === 'BROADCAST'
+      ? '全员广播'
+      : `用户 ${row.senderId}`
 }
 
 /* ==================== 加载 ==================== */
@@ -374,8 +425,7 @@ async function load() {
       const result = await messageApi.sent(params)
       rows.value = result.data
       total.value = Number(result.total ?? 0)
-    }
-    else {
+    } else {
       const result = await messageApi.inbox(params)
       rows.value = result.data
       total.value = Number(result.total ?? 0)
@@ -452,12 +502,16 @@ function batchArchive(archived: number) {
 
 async function doArchive(ids: string[], archived: number) {
   const count = await messageApi.archive(ids, archived)
-  ElMessage.success(archived === 1 ? `已归档 ${count} 条消息` : `已取消归档 ${count} 条消息`)
+  ElMessage.success(archived === 1
+    ? `已归档 ${count} 条消息`
+    : `已取消归档 ${count} 条消息`)
   load()
 }
 
 function archiveOne(row: MessageItem) {
-  doArchive([row.id], activeBox.value === 'archive' ? 0 : 1)
+  doArchive([row.id], activeBox.value === 'archive'
+    ? 0
+    : 1)
 }
 
 function batchTrash() {
@@ -534,16 +588,20 @@ const composeForm = reactive<MessageSendCmd>({
 })
 
 const composeRules: FormRules = {
-  msgType: [{ required: true, message: '请选择消息类型', trigger: 'change' }],
-  receiverUsername: [{
-    validator: (_rule, value, callback) => {
-      if (composeForm.msgType !== 'BROADCAST' && !value)
-        callback(new Error('请输入接收人登录名'))
-      else
-        callback()
+  msgType: [
+    { required: true, message: '请选择消息类型', trigger: 'change' },
+  ],
+  receiverUsername: [
+    {
+      validator: (_rule, value, callback) => {
+        if (composeForm.msgType !== 'BROADCAST' && !value)
+          callback(new Error('请输入接收人登录名'))
+        else
+          callback()
+      },
+      trigger: 'blur',
     },
-    trigger: 'blur',
-  }],
+  ],
   title: [
     { required: true, message: '请输入消息标题', trigger: 'blur' },
     { max: 100, message: '标题最长 100 字符', trigger: 'blur' },
@@ -580,7 +638,11 @@ async function handleUpload(options: UploadRequestOptions) {
   // el-upload 会在原始 File 上附加 uid（用于文件列表对应用）
   const raw = options.file as File & { uid?: number | string }
   const file = await fileApi.upload(raw, 'message')
-  uploadFiles.value.push({ uid: raw.uid ?? Date.now(), id: file.id, name: file.originalName ?? raw.name })
+  uploadFiles.value.push({
+    uid: raw.uid ?? Date.now(),
+    id: file.id,
+    name: file.originalName ?? raw.name,
+  })
   composeForm.attachmentIds = uploadFiles.value.map(item => item.id)
 }
 
@@ -597,7 +659,9 @@ async function submitCompose() {
   try {
     await messageApi.send({
       ...composeForm,
-      receiverUsername: composeForm.msgType === 'BROADCAST' ? undefined : composeForm.receiverUsername,
+      receiverUsername: composeForm.msgType === 'BROADCAST'
+        ? undefined
+        : composeForm.receiverUsername,
       attachmentIds: composeForm.attachmentIds,
     })
     ElMessage.success('消息发送成功')
@@ -618,7 +682,9 @@ watch(lastEvent, (event) => {
   if (!event)
     return
   ElNotification({
-    title: event.msgType === 'BROADCAST' ? '收到公告广播' : '收到新消息',
+    title: event.msgType === 'BROADCAST'
+      ? '收到公告广播'
+      : '收到新消息',
     message: event.title,
     type: 'info',
     duration: 4000,

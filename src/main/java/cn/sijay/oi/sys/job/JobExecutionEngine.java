@@ -1,5 +1,6 @@
 package cn.sijay.oi.sys.job;
 
+import cn.sijay.oi.common.util.RedisUtil;
 import cn.sijay.oi.sys.entity.SysJob;
 import cn.sijay.oi.sys.entity.SysJobLog;
 import cn.sijay.oi.sys.entity.SysJobRetryDetail;
@@ -14,13 +15,7 @@ import java.net.InetAddress;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 /**
  * 任务执行引擎：任务实例的完整执行流水线——
@@ -72,7 +67,7 @@ public class JobExecutionEngine {
      */
     private final ExecutorService workerExecutor;
 
-    private final cn.sijay.oi.common.util.RedisUtil redisUtil;
+    private final RedisUtil redisUtil;
     private final SysJobLogRepository jobLogRepository;
     private final SysJobRetryDetailRepository retryDetailRepository;
     private final JobRetryDecider retryDecider;
@@ -85,14 +80,14 @@ public class JobExecutionEngine {
      */
     private final String executorId;
 
-    public JobExecutionEngine(cn.sijay.oi.common.util.RedisUtil redisUtil,
+    public JobExecutionEngine(RedisUtil redisUtil,
                               SysJobLogRepository jobLogRepository,
                               SysJobRetryDetailRepository retryDetailRepository,
                               JobRetryDecider retryDecider,
                               JobBackoffCalculator backoffCalculator,
                               List<RetryCallback> retryCallbacks,
                               JobAlertService alertService,
-                              @Value("${server.port:8080}") int serverPort) {
+                              @Value("${server.port:29979}") int serverPort) {
         this.redisUtil = redisUtil;
         this.jobLogRepository = jobLogRepository;
         this.retryDetailRepository = retryDetailRepository;
@@ -121,7 +116,7 @@ public class JobExecutionEngine {
      * <p><b>分布式锁并发控制</b>：获取锁失败时按冲突策略处理——
      * DISCARD 记 SKIPPED 后返回；QUEUE 阻塞等待前序完成后立即串行执行。
      *
-     * @param job   任务配置
+     * @param job    任务配置
      * @param action 业务执行体（@OiScheduled 方法代理或重放执行体）
      * @param source 触发来源（SCHEDULE/MANUAL/REPLAY）
      * @return 执行结果
@@ -327,19 +322,19 @@ public class JobExecutionEngine {
      */
     private void updateAttemptNextRetry(Long logId, int attemptNo, LocalDateTime nextRetryAt) {
         retryDetailRepository.findByLogIdOrderByAttemptNoAsc(logId).stream()
-                .filter(d -> d.getAttemptNo() == attemptNo)
-                .findFirst()
-                .ifPresent(d -> {
-                    d.setNextRetryAt(nextRetryAt);
-                    retryDetailRepository.save(d);
-                });
+                             .filter(d -> d.getAttemptNo() == attemptNo)
+                             .findFirst()
+                             .ifPresent(d -> {
+                                 d.setNextRetryAt(nextRetryAt);
+                                 retryDetailRepository.save(d);
+                             });
     }
 
     /**
      * 终态落库（状态/异常/耗时/重试计数）。
      */
     private void finalizeLog(SysJobLog jobLog, JobExecuteStatus finalStatus, int retryCount,
-                            long duration, Throwable error) {
+                             long duration, Throwable error) {
         jobLog.setExecuteStatus(finalStatus.name());
         jobLog.setRetryCount(Math.max(0, retryCount));
         jobLog.setEndTime(LocalDateTime.now());
@@ -434,10 +429,10 @@ public class JobExecutionEngine {
     /**
      * 单次执行结果。
      *
-     * @param logId      执行记录 id
-     * @param success    是否成功
-     * @param status     终态状态名
-     * @param error      终态异常；成功为 null
+     * @param logId   执行记录 id
+     * @param success 是否成功
+     * @param status  终态状态名
+     * @param error   终态异常；成功为 null
      */
     public record JobExecutionResult(Long logId, boolean success, String status, Throwable error) {
     }

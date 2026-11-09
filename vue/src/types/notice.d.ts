@@ -23,9 +23,9 @@ export interface SysNoticeCreateCmd {
    */
   publishTime?: string | null
   /**
-   * 是否置顶；1=置顶；选填。
+   * 是否置顶；true=置顶；选填。
    */
-  topMarked?: number | null
+  topMarked?: boolean | null
 }
 
 /**
@@ -49,9 +49,9 @@ export interface SysNoticeUpdateCmd {
    */
   publishTime?: string | null
   /**
-   * 是否置顶；1=置顶；选填。
+   * 是否置顶；true=置顶；选填。
    */
-  topMarked?: number | null
+  topMarked?: boolean | null
 }
 
 /**
@@ -71,9 +71,9 @@ export interface SysNoticeQuery {
    */
   content?: string
   /**
-   * 是否置顶；1=置顶过滤；精确匹配，选填。
+   * 是否置顶过滤；true=置顶，精确匹配，选填。
    */
-  topMarked?: number
+  topMarked?: boolean
 }
 
 /**
@@ -101,9 +101,9 @@ export interface SysNoticeVO {
    */
   publishTime: string | null
   /**
-   * 是否置顶；1=置顶。
+   * 是否置顶；true=置顶。
    */
-  topMarked: number | null
+  topMarked: boolean | null
   /**
    * 创建时间；yyyy-MM-dd HH:mm:ss。
    */

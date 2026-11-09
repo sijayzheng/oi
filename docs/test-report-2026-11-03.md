@@ -2,7 +2,7 @@
 
 - **测试日期**：2026-11-03
 - **被测系统**：Oi 管理系统（Spring Boot 4 + Sa-Token + JPA/H2 后端，Vue 3 + Element Plus + Vite 前端）
-- **测试环境**：Windows 本机，后端 `http://localhost:8080`（dev profile，H2 文件库 + data.sql 种子数据），前端 Vite dev server `http://localhost:5173`（/api 代理至后端）
+- **测试环境**：Windows 本机，后端 `http://localhost:29979`（dev profile，H2 文件库 + data.sql 种子数据），前端 Vite dev server `http://localhost:5173`（/api 代理至后端）
 - **测试方式**：后端既有集成测试套件（MockMvc + 内存 H2）+ 外部黑盒接口测试脚本（140 用例）+ Node 并发压测 + Chrome 真实浏览器 E2E（含多分辨率与隔离上下文多账号）+ 故障注入
 - **账号**：admin/123456（超管）、viewer/123456（访客角色，仅授权参数配置与通知公告）
 
@@ -173,4 +173,4 @@ null 查询参数序列化为 `"null"` 导致 400、未读数赋值未做 Number
     1. `uploads/` 目录中存在本次测试产生的少量孤儿文件（sys_file 记录已清理，磁盘文件保留），可在测试环境定期清理；
     2. 代码生成"生成落盘"接口（/gen/table/generate/{id}）会产生真实文件写入，本轮未执行，建议在独立分支验证；
     3. data.sql 中菜单注释（"菜单 1~9"）与实际 11 条不一致，属注释滞后，未改动。
-- 测试完成后系统状态：后端（8080）与前端（5173）保持运行，admin/viewer 账号与种子数据完好。
+- 测试完成后系统状态：后端（29979）与前端（5173）保持运行，admin/viewer 账号与种子数据完好。

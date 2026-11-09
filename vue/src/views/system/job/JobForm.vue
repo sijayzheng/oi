@@ -32,8 +32,8 @@
         <span class="form-tip">毫秒，最小 1000</span>
       </template>
     </el-form-item>
-    <el-form-item v-if="form.triggerType === 'CRON'" label="时区" prop="timeZone">
-      <el-input v-model="form.timeZone" placeholder="如 Asia/Shanghai；留空为应用默认时区" />
+    <el-form-item v-if="form.triggerType === 'CRON'" label=" ">
+      <CronVisualizer :expression="form.triggerValue" class="cron-visualizer-item" />
     </el-form-item>
     <el-form-item label="超时时间（毫秒）" prop="timeoutMillis">
       <el-input-number
@@ -131,7 +131,12 @@
  *
  * <p>数据流：本地 reactive 副本承载编辑态（打开时由父组件 snapshot 同步），
  * 提交时父组件经 getFormValues() 读取——避免 v-model 直接变更 props 违反单向数据流。
+ *
+ * <p>CRON 触发时下方内嵌 {@link CronVisualizer} 可视化组件（字段分解 + 释义 +
+ * 后续 5 次执行时间预览，预览经后端与调度器同源计算）。
  */
+
+import CronVisualizer from './CronVisualizer.vue'
 
 const props = defineProps<{
   /** 表单初始值快照（打开对话框时传入；组件内不回写） */
@@ -174,9 +179,6 @@ const rules: FormRules = {
   ],
   triggerValue: [
     { required: true, message: '触发配置不能为空', trigger: 'blur' },
-  ],
-  timeZone: [
-    { max: 50, message: '时区最长 50 字符', trigger: 'blur' },
   ],
   retryInclude: [
     { max: 1000, message: '白名单最长 1000 字符', trigger: 'blur' },
@@ -224,5 +226,9 @@ defineExpose({ validate, getFormValues })
   margin-left: 8px;
   color: var(--el-text-color-secondary);
   font-size: 12px;
+}
+
+.cron-visualizer-item {
+  width: 100%;
 }
 </style>

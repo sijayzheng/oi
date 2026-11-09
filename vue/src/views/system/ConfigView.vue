@@ -48,7 +48,7 @@
     >
       <el-table-column type="selection" width="44" />
       <el-table-column v-if="visibleColumns.includes('id')" prop="id" label="ID" width="90" />
-      <el-table-column v-if="visibleColumns.includes('configKey')" prop="configKey" label="参数键" min-width="160" show-overflow-tooltip />
+      <el-table-column v-if="visibleColumns.includes('configKey')" prop="configKey" label="参数键" min-width="160" sortable="custom" show-overflow-tooltip />
       <el-table-column v-if="visibleColumns.includes('configValue')" prop="configValue" label="参数值" min-width="160" show-overflow-tooltip />
       <el-table-column v-if="visibleColumns.includes('valueType')" prop="valueType" label="值类型" width="110">
         <template #default="{ row }">
@@ -57,7 +57,7 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column v-if="visibleColumns.includes('name')" prop="name" label="参数名称" min-width="140" show-overflow-tooltip />
+      <el-table-column v-if="visibleColumns.includes('name')" prop="name" label="参数名称" min-width="140" sortable="custom" show-overflow-tooltip />
       <el-table-column v-if="visibleColumns.includes('remark')" prop="remark" label="备注" min-width="140" show-overflow-tooltip />
       <el-table-column
         v-if="visibleColumns.includes('createTime')"
@@ -95,7 +95,7 @@
   </el-card>
 
   <!-- 新增配置 -->
-  <el-dialog v-model="createVisible" title="新增配置" width="560px" destroy-on-close>
+  <el-dialog v-model="createVisible" title="新增配置" width="780px" destroy-on-close>
     <el-form ref="createFormRef" :model="createForm" :rules="configKeyRules" label-width="90px">
       <el-form-item label="参数键" prop="configKey">
         <el-input v-model="createForm.configKey" placeholder="点分命名（如 site.name），创建后不可修改" />
@@ -128,7 +128,7 @@
   </el-dialog>
 
   <!-- 编辑配置 -->
-  <el-dialog v-model="editVisible" title="编辑配置" width="560px" destroy-on-close>
+  <el-dialog v-model="editVisible" title="编辑配置" width="780px" destroy-on-close>
     <el-alert type="info" :closable="false" show-icon class="edit-tip">
       参数键不支持修改（代码中以常量引用）
     </el-alert>

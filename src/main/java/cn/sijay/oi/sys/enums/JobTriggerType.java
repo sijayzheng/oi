@@ -10,7 +10,7 @@ import lombok.Getter;
  * <p>与标准 Spring {@code @Scheduled} 注解的调度语义一一对应：
  * <ul>
  *   <li>{@link #CRON}：CRON 表达式（Spring 6 位格式：秒 分 时 日 月 周，
- *       与 {@code @Scheduled(cron=...)} 兼容，支持时区）；</li>
+ *       与 {@code @Scheduled(cron=...)} 兼容，按应用默认时区求值）；</li>
  *   <li>{@link #FIXED_RATE}：固定频率（上次<b>开始</b>时间 + 周期，
  *       与 {@code @Scheduled(fixedRate=...)} 语义一致）；</li>
  *   <li>{@link #FIXED_DELAY}：固定延迟（上次<b>结束</b>时间 + 周期，

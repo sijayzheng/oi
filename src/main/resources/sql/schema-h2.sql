@@ -334,7 +334,7 @@ CREATE TABLE if not exists sys_notice
     notice_type  VARCHAR(20) DEFAULT '0'               NOT NULL, -- 通知类型；0=通知 1=公告（前端下拉）
     content      VARCHAR(2000)                         NOT NULL, -- 通知内容
     publish_time TIMESTAMP,                                      -- 发布时间；未发布为空
-    top_marked   TINYINT     DEFAULT 0                 NOT NULL, -- 是否置顶；1=置顶
+    top_marked   BOOLEAN     DEFAULT FALSE             NOT NULL, -- 是否置顶；true=置顶
     create_by    BIGINT,                                         -- 创建人；审计字段
     create_time  TIMESTAMP   DEFAULT CURRENT_TIMESTAMP NOT NULL,
     -- 创建时间；审计字段
@@ -348,7 +348,7 @@ COMMENT ON COLUMN sys_notice.title IS '通知标题';
 COMMENT ON COLUMN sys_notice.notice_type IS '通知类型；0=通知 1=公告';
 COMMENT ON COLUMN sys_notice.content IS '通知内容';
 COMMENT ON COLUMN sys_notice.publish_time IS '发布时间';
-COMMENT ON COLUMN sys_notice.top_marked IS '是否置顶；1=置顶';
+COMMENT ON COLUMN sys_notice.top_marked IS '是否置顶；true=置顶';
 
 -- ========== 站内信（消息中心） ==========
 
@@ -444,7 +444,6 @@ CREATE TABLE if not exists sys_job
     name                    VARCHAR(100)                          NOT NULL, -- 任务名称；管理界面展示用
     trigger_type            VARCHAR(20)                           NOT NULL, -- 触发类型 JobTriggerType：CRON=CRON 表达式 / FIXED_RATE=固定频率 / FIXED_DELAY=固定延迟
     trigger_value           VARCHAR(100)                          NOT NULL, -- 触发值；CRON 存 6 位表达式（如 0 * * * * *）；FIXED_RATE/FIXED_DELAY 存毫秒周期（>=1000）
-    time_zone               VARCHAR(50),                                    -- CRON 求值时区（如 Asia/Shanghai）；空=应用默认时区；支持跨时区部署
     timeout_millis          BIGINT      DEFAULT 0                 NOT NULL, -- 超时时间（毫秒）；>0 启用超时保护（强制中断并标记 TIMEOUT）；0=不限时
     retry_policy            VARCHAR(30) DEFAULT 'FIXED_INTERVAL'  NOT NULL,
     -- 重试策略 JobRetryPolicy：FIXED_INTERVAL=固定间隔 / EXPONENTIAL_BACKOFF=指数退避（含抖动）
@@ -470,7 +469,6 @@ COMMENT ON TABLE sys_job IS '任务调度定义';
 COMMENT ON COLUMN sys_job.job_key IS '任务业务键；点分命名；与 deleted 组合唯一；@OiScheduled 按 jobKey 关联';
 COMMENT ON COLUMN sys_job.trigger_type IS '触发类型；CRON / FIXED_RATE / FIXED_DELAY';
 COMMENT ON COLUMN sys_job.trigger_value IS '触发值；CRON 表达式或毫秒周期';
-COMMENT ON COLUMN sys_job.time_zone IS 'CRON 求值时区；空=应用默认时区';
 COMMENT ON COLUMN sys_job.timeout_millis IS '超时毫秒；0=不限时';
 COMMENT ON COLUMN sys_job.retry_policy IS '重试策略；FIXED_INTERVAL / EXPONENTIAL_BACKOFF';
 COMMENT ON COLUMN sys_job.retry_include IS '可重试异常白名单；类型模式，逗号分隔';

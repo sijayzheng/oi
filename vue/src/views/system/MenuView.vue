@@ -6,12 +6,18 @@
       </el-form-item>
       <el-form-item label="类型">
         <el-select v-model="query.type" placeholder="全部" clearable class="type-select">
-          <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value" />
+          <el-option
+            v-for="item in typeOptions" :key="item.value" :label="item.label"
+            :value="item.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="状态">
         <el-select v-model="query.enabled" placeholder="全部" clearable class="status-select">
-          <el-option v-for="item in enabledOptions" :key="String(item.value)" :label="item.label" :value="item.value" />
+          <el-option
+            v-for="item in enabledOptions" :key="String(item.value)" :label="item.label"
+            :value="item.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -32,7 +38,10 @@
         <el-button type="primary" :icon="Plus" @click="openCreate">
           新增菜单
         </el-button>
-        <el-button type="danger" plain :icon="Delete" :disabled="selection.length === 0" @click="handleBatchRemove">
+        <el-button
+          type="danger" plain :icon="Delete" :disabled="selection.length === 0"
+          @click="handleBatchRemove"
+        >
           批量删除
         </el-button>
         <el-button :icon="Share" @click="openTree">
@@ -53,7 +62,10 @@
     >
       <el-table-column type="selection" width="44" />
       <el-table-column v-if="visibleColumns.includes('id')" prop="id" label="ID" width="90" />
-      <el-table-column v-if="visibleColumns.includes('name')" prop="name" label="名称" min-width="130" show-overflow-tooltip />
+      <el-table-column
+        v-if="visibleColumns.includes('name')" prop="name" label="名称"
+        min-width="130" sortable="custom" show-overflow-tooltip
+      />
       <el-table-column v-if="visibleColumns.includes('type')" prop="type" label="类型" width="90">
         <template #default="{ row }">
           <el-tag :type="typeOptions.find(o => o.value === row.type)?.tag">
@@ -61,20 +73,44 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column v-if="visibleColumns.includes('parentId')" prop="parentId" label="父ID" width="90" />
-      <el-table-column v-if="visibleColumns.includes('path')" prop="path" label="路由路径" min-width="140" show-overflow-tooltip />
-      <el-table-column v-if="visibleColumns.includes('component')" prop="component" label="组件路径" min-width="150" show-overflow-tooltip />
-      <el-table-column v-if="visibleColumns.includes('perms')" prop="perms" label="权限标识" min-width="130" show-overflow-tooltip />
-      <el-table-column v-if="visibleColumns.includes('icon')" prop="icon" label="图标" width="110" show-overflow-tooltip />
-      <el-table-column v-if="visibleColumns.includes('sort')" prop="sort" label="排序号" width="90" sortable="custom" />
-      <el-table-column v-if="visibleColumns.includes('visible')" prop="visible" label="显示状态" width="90">
+      <el-table-column
+        v-if="visibleColumns.includes('parentId')" prop="parentId" label="父ID"
+        width="90"
+      />
+      <el-table-column
+        v-if="visibleColumns.includes('path')" prop="path" label="路由路径"
+        min-width="140" show-overflow-tooltip
+      />
+      <el-table-column
+        v-if="visibleColumns.includes('component')" prop="component" label="组件路径"
+        min-width="150" show-overflow-tooltip
+      />
+      <el-table-column
+        v-if="visibleColumns.includes('perms')" prop="perms" label="权限标识"
+        min-width="130" show-overflow-tooltip
+      />
+      <el-table-column
+        v-if="visibleColumns.includes('icon')" prop="icon" label="图标" width="110"
+        show-overflow-tooltip
+      />
+      <el-table-column
+        v-if="visibleColumns.includes('sort')" prop="sort" label="排序号" width="90"
+        sortable="custom"
+      />
+      <el-table-column
+        v-if="visibleColumns.includes('visible')" prop="visible" label="显示状态"
+        width="90"
+      >
         <template #default="{ row }">
           <el-tag :type="row.visible ? 'success' : 'info'">
             {{ row.visible ? '显示' : '隐藏' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column v-if="visibleColumns.includes('enabled')" prop="enabled" label="状态" width="90">
+      <el-table-column
+        v-if="visibleColumns.includes('enabled')" prop="enabled" label="状态"
+        width="90"
+      >
         <template #default="{ row }">
           <el-tag :type="row.enabled ? 'success' : 'danger'">
             {{ row.enabled ? '正常' : '禁用' }}
@@ -93,7 +129,10 @@
           <el-button link type="primary" @click="openEdit(row as SysMenuVO)">
             编辑
           </el-button>
-          <el-popconfirm title="确认删除该菜单？" confirm-button-text="删除" cancel-button-text="取消" @confirm="handleRemove(row as SysMenuVO)">
+          <el-popconfirm
+            title="确认删除该菜单？" confirm-button-text="删除"
+            cancel-button-text="取消" @confirm="handleRemove(row as SysMenuVO)"
+          >
             <template #reference>
               <el-button link type="danger">
                 删除
@@ -117,7 +156,7 @@
   </el-card>
 
   <!-- 新增菜单 -->
-  <el-dialog v-model="createVisible" title="新增菜单" width="600px" destroy-on-close>
+  <el-dialog v-model="createVisible" title="新增菜单" width="780px" destroy-on-close>
     <el-form ref="createFormRef" :model="createForm" :rules="createRules" label-width="90px">
       <el-form-item label="节点类型" prop="type">
         <el-radio-group v-model="createForm.type">
@@ -135,7 +174,10 @@
           filterable
           class="parent-select"
         >
-          <el-option v-for="item in parentCandidates" :key="item.id" :label="item.name" :value="item.id" />
+          <el-option
+            v-for="item in parentCandidates" :key="item.id" :label="item.name"
+            :value="item.id"
+          />
         </el-select>
         <div class="form-hint">
           {{ parentHint }}
@@ -185,7 +227,7 @@
   </el-dialog>
 
   <!-- 编辑菜单 -->
-  <el-dialog v-model="editVisible" title="编辑菜单" width="600px" destroy-on-close>
+  <el-dialog v-model="editVisible" title="编辑菜单" width="780px" destroy-on-close>
     <el-alert type="info" :closable="false" show-icon class="edit-tip">
       挂载点（父节点）与节点类型不支持修改
     </el-alert>
@@ -194,7 +236,9 @@
         <el-tag :type="typeOptions.find(o => o.value === editRow?.type)?.tag">
           {{ editRow ? typeLabel(editRow.type) : '' }}
         </el-tag>
-        <span v-if="editRow" class="form-hint edit-hint">父节点 ID：{{ editRow.parentId }}（0 为根节点）</span>
+        <span v-if="editRow" class="form-hint edit-hint">父节点 ID：{{
+          editRow.parentId
+        }}（0 为根节点）</span>
       </el-form-item>
       <el-form-item label="名称" prop="name">
         <el-input v-model="editForm.name" placeholder="必填，最长 50 字符" />
@@ -281,7 +325,11 @@ const {
   enabled: undefined,
 }))
 
-const typeOptions: Array<{ value: MenuType, label: string, tag: 'info' | 'primary' | 'warning' }> = [
+const typeOptions: Array<{
+  value: MenuType
+  label: string
+  tag: 'info' | 'primary' | 'warning'
+}> = [
   { value: 'DIRECTORY', label: '目录', tag: 'info' },
   { value: 'MENU', label: '菜单', tag: 'primary' },
   { value: 'BUTTON', label: '按钮', tag: 'warning' },

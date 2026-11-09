@@ -16,9 +16,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.time.ZoneId;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
@@ -28,15 +26,14 @@ import java.util.concurrent.ScheduledFuture;
  *
  * <p><b>调度能力对齐 Spring 规范</b>：
  * <ul>
- *   <li>CRON：{@link CronTrigger}（Spring 6 位表达式，与 {@code @Scheduled(cron)} 语法兼容，
- *       支持时区）；</li>
+ *   <li>CRON：{@link CronTrigger}（Spring 6 位表达式，与 {@code @Scheduled(cron)} 语法兼容）；</li>
  *   <li>fixed-rate / fixed-delay：{@link PeriodicTrigger}（setFixedRate 切换语义，
  *       与 {@code @Scheduled(fixedRate/fixedDelay)} 一致）。</li>
  * </ul>
  *
- * <p><b>秒级精度与跨时区</b>：调度线程池默认秒级触发精度（{@code ThreadPoolTaskScheduler}
- * 基于 {@code ScheduledThreadPoolExecutor}）；CRON 按 {@code sys_job.time_zone} 配置的
- * 时区求值，未配置时按应用默认时区。
+ * <p><b>秒级精度与时区</b>：调度线程池默认秒级触发精度（{@code ThreadPoolTaskScheduler}
+ * 基于 {@code ScheduledThreadPoolExecutor}）；CRON 统一按应用默认时区求值
+ * （东八区，见 {@code OiApplication}）。
  *
  * <p><b>动态变更</b>：注册/取消均为 O(1) future 表操作，变更即生效——
  * 旧 future 取消（不打断在途执行，仅停止后续触发）、按新配置重新注册。
@@ -153,8 +150,8 @@ public class JobSchedulerManager {
             default -> throw new BusinessException(BusinessErrorCode.JOB_TRIGGER_INVALID);
         }
         registry.put(job.getJobKey(), future);
-        log.info("[Job] 注册成功: jobKey={}, type={}, value={}, timeZone={}",
-                job.getJobKey(), job.getTriggerType(), job.getTriggerValue(), job.getTimeZone());
+        log.info("[Job] 注册成功: jobKey={}, type={}, value={}",
+                job.getJobKey(), job.getTriggerType(), job.getTriggerValue());
     }
 
     /**
@@ -215,14 +212,11 @@ public class JobSchedulerManager {
     }
 
     /**
-     * 构建 CRON 触发器（含时区）。
+     * 构建 CRON 触发器（按应用默认时区求值）。
      */
     private CronTrigger buildCronTrigger(SysJob job) {
         try {
-            if (job.getTimeZone() == null || job.getTimeZone().isBlank()) {
-                return new CronTrigger(job.getTriggerValue());
-            }
-            return new CronTrigger(job.getTriggerValue(), TimeZone.getTimeZone(ZoneId.of(job.getTimeZone())));
+            return new CronTrigger(job.getTriggerValue());
         } catch (Exception e) {
             throw new BusinessException(BusinessErrorCode.JOB_TRIGGER_INVALID);
         }

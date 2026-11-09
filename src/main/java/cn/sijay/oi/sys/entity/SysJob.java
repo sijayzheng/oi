@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 /**
  * 任务调度定义实体，映射表 {@code sys_job}（DDL 见 classpath:sql/schema-h2.sql）。
  *
- * <p>一条记录即一个可调度任务，承载触发配置（类型 + 触发值 + 时区）、
+ * <p>一条记录即一个可调度任务，承载触发配置（类型 + 触发值）、
  * 重试策略、超时保护、并发冲突策略与告警阈值，全部支持运行时动态修改、
  * 即时生效（无需重启应用）。
  *
@@ -79,13 +79,6 @@ public class SysJob {
      */
     @Column(name = "trigger_value", nullable = false, length = 100)
     private String triggerValue;
-
-    /**
-     * 时区；CRON 表达式的求值时区（如 Asia/Shanghai、UTC）；
-     * 为空时按应用默认时区求值，支持跨时区部署场景。
-     */
-    @Column(name = "time_zone", length = 50)
-    private String timeZone;
 
     /**
      * 任务超时时间（毫秒）；&gt;0 时启用超时保护，超时强制中断并标记 TIMEOUT；

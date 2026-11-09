@@ -426,6 +426,9 @@ declare module 'vue' {
     readonly Download: UnwrapRef<typeof import('@element-plus/icons-vue')['Download']>
     readonly Edit: UnwrapRef<typeof import('@element-plus/icons-vue')['Edit']>
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
+    readonly ElLoading: UnwrapRef<typeof import('element-plus/es')['ElLoading']>
+    readonly ElMessage: UnwrapRef<typeof import('element-plus/es')['ElMessage']>
+    readonly ElMessageBox: UnwrapRef<typeof import('element-plus/es')['ElMessageBox']>
     readonly Expand: UnwrapRef<typeof import('@element-plus/icons-vue')['Expand']>
     readonly Fold: UnwrapRef<typeof import('@element-plus/icons-vue')['Fold']>
     readonly Lock: UnwrapRef<typeof import('@element-plus/icons-vue')['Lock']>

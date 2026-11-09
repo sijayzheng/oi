@@ -38,8 +38,8 @@ public class SysNoticeQuery {
     private String content;
 
     /**
-     * 是否置顶；1=置顶过滤；精确匹配，选填。
+     * 是否置顶过滤；true=置顶，精确匹配，选填。
      */
-    private Integer topMarked;
+    private Boolean topMarked;
 
 }

@@ -9,14 +9,17 @@
       </el-form-item>
       <el-form-item label="触发类型">
         <el-select v-model="query.triggerType" placeholder="全部" clearable class="type-select">
-          <el-option v-for="item in triggerTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
+          <el-option
+            v-for="item in triggerTypeOptions" :key="item.value" :label="item.label"
+            :value="item.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="状态">
-        <el-select v-model="query.enabled" placeholder="全部" clearable class="type-select">
-          <el-option label="启用中" :value="true" />
-          <el-option label="已暂停" :value="false" />
-        </el-select>
+        <el-radio-group v-model="query.enabled" placeholder="全部" clearable @change="search">
+          <el-radio-button label="启用中" :value="true" />
+          <el-radio-button label="已暂停" :value="false" />
+        </el-radio-group>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" :icon="Search" @click="search">
@@ -43,8 +46,8 @@
 
     <el-table v-loading="loading" :data="rows" row-key="id" border stripe>
       <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="jobKey" label="任务键" min-width="150" show-overflow-tooltip />
-      <el-table-column prop="name" label="任务名称" min-width="130" show-overflow-tooltip />
+      <el-table-column prop="jobKey" label="任务键" min-width="150" sortable="custom" show-overflow-tooltip />
+      <el-table-column prop="name" label="任务名称" min-width="130" sortable="custom" show-overflow-tooltip />
       <el-table-column label="触发配置" min-width="170" show-overflow-tooltip>
         <template #default="{ row }">
           <el-tag type="info" size="small" class="trigger-tag">
@@ -60,7 +63,9 @@
       </el-table-column>
       <el-table-column label="超时" width="90">
         <template #default="{ row }">
-          {{ (row as SysJobVO).timeoutMillis === '0' ? '不限' : `${Number((row as SysJobVO).timeoutMillis) / 1000}s` }}
+          {{
+            (row as SysJobVO).timeoutMillis === '0' ? '不限' : `${Number((row as SysJobVO).timeoutMillis) / 1000}s`
+          }}
         </template>
       </el-table-column>
       <el-table-column label="冲突策略" width="90">
@@ -78,19 +83,28 @@
       <el-table-column prop="updateTime" label="更新时间" width="170" sortable="custom" />
       <el-table-column label="操作" fixed="right" width="250">
         <template #default="{ row }">
-          <el-button link type="success" :loading="triggeringId === row.id" @click="handleTrigger(row as SysJobVO)">
+          <el-button
+            link type="success" :loading="triggeringId === row.id"
+            @click="handleTrigger(row as SysJobVO)"
+          >
             执行
           </el-button>
           <el-button link type="primary" @click="openEdit(row as SysJobVO)">
             编辑
           </el-button>
-          <el-button link :type="(row as SysJobVO).enabled ? 'warning' : 'success'" @click="handleToggle(row as SysJobVO)">
+          <el-button
+            link :type="(row as SysJobVO).enabled ? 'warning' : 'success'"
+            @click="handleToggle(row as SysJobVO)"
+          >
             {{ (row as SysJobVO).enabled ? '暂停' : '恢复' }}
           </el-button>
           <el-button link type="danger" @click="handleLogs(row as SysJobVO)">
             记录
           </el-button>
-          <el-popconfirm title="确认删除该任务？（调度停止，执行历史保留）" confirm-button-text="删除" cancel-button-text="取消" @confirm="handleRemove(row as SysJobVO)">
+          <el-popconfirm
+            title="确认删除该任务？（调度停止，执行历史保留）" confirm-button-text="删除"
+            cancel-button-text="取消" @confirm="handleRemove(row as SysJobVO)"
+          >
             <template #reference>
               <el-button link type="danger">
                 删除
@@ -114,7 +128,7 @@
   </el-card>
 
   <!-- 新增任务 -->
-  <el-dialog v-model="createVisible" title="新增任务" width="680px" destroy-on-close>
+  <el-dialog v-model="createVisible" title="新增任务" width="780px" destroy-on-close>
     <JobForm ref="createFormRef" :model-value="createForm" />
     <template #footer>
       <el-button @click="createVisible = false">
@@ -127,7 +141,7 @@
   </el-dialog>
 
   <!-- 编辑任务 -->
-  <el-dialog v-model="editVisible" title="编辑任务" width="680px" destroy-on-close>
+  <el-dialog v-model="editVisible" title="编辑任务" width="780px" destroy-on-close>
     <el-alert type="info" :closable="false" show-icon class="edit-tip">
       任务键不可修改（调度与执行历史按任务键关联）；保存后调度计划立即生效，无需重启。
     </el-alert>
@@ -169,8 +183,11 @@ const {
   jobKey: '',
   name: '',
   triggerType: undefined,
-  enabled: undefined,
+  enabled: true,
 }))
+
+// 首次进入页面自动查询（useTablePage 只提供加载方法，不自动请求）
+onMounted(load)
 
 const triggerTypeOptions = [
   { value: 'CRON', label: 'CRON 表达式' },
@@ -181,9 +198,7 @@ const triggerTypeOptions = [
 /** 触发值展示：CRON 原样、周期转人类可读 */
 function formatTriggerValue(row: SysJobVO) {
   if (row.triggerType === 'CRON') {
-    return `${row.triggerValue}${row.timeZone
-      ? ` (${row.timeZone})`
-      : ''}`
+    return row.triggerValue
   }
   const millis = Number(row.triggerValue)
   if (Number.isNaN(millis)) {
@@ -257,7 +272,6 @@ const createForm = reactive<SysJobCreateCmd>({
   name: '',
   triggerType: 'CRON',
   triggerValue: '',
-  timeZone: '',
   timeoutMillis: '0',
   retryPolicy: 'FIXED_INTERVAL',
   maxRetryCount: 0,
@@ -275,7 +289,6 @@ const editForm = reactive<SysJobUpdateCmd>({
   name: '',
   triggerType: 'CRON',
   triggerValue: '',
-  timeZone: '',
   timeoutMillis: '0',
   retryPolicy: 'FIXED_INTERVAL',
   maxRetryCount: 0,
@@ -294,7 +307,6 @@ function openCreate() {
     name: '',
     triggerType: 'CRON',
     triggerValue: '',
-    timeZone: '',
     timeoutMillis: '0',
     retryPolicy: 'FIXED_INTERVAL',
     maxRetryCount: 0,
@@ -330,7 +342,6 @@ function openEdit(row: SysJobVO) {
     name: row.name,
     triggerType: row.triggerType,
     triggerValue: row.triggerValue,
-    timeZone: row.timeZone ?? '',
     timeoutMillis: row.timeoutMillis,
     retryPolicy: row.retryPolicy,
     maxRetryCount: row.maxRetryCount,

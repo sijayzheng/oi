@@ -24,14 +24,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 /**
  * 任务执行引擎单元测试（Mock Redis/Repository，验证引擎编排逻辑本身）。
@@ -90,22 +84,22 @@ class JobExecutionEngineTest {
         });
         lenient().when(retryDetailRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         lenient().when(retryDetailRepository.findByLogIdOrderByAttemptNoAsc(anyLong()))
-                .thenReturn(List.of());
+                 .thenReturn(List.of());
         // 分布式锁：默认获取成功
         lenient().when(redisUtil.tryLock(anyString(), anyLong(), anyLong(), any(TimeUnit.class)))
-                .thenReturn(true);
+                 .thenReturn(true);
 
         callback = new RecordingCallback();
         JobAlertService alertService = new JobAlertService(
                 deadLetterRepository, jobLogRepository, null);
         engine = new JobExecutionEngine(redisUtil, jobLogRepository, retryDetailRepository,
                 new JobRetryDecider(new org.springframework.beans.factory.ObjectProvider<>() {
-                @Override
-                public RetryableExceptionMatcher getIfAvailable() {
-                    return null;
-                }
-            }), new JobBackoffCalculator(jobLogRepository),
-                List.of(callback), alertService, 18080);
+                    @Override
+                    public RetryableExceptionMatcher getIfAvailable() {
+                        return null;
+                    }
+                }), new JobBackoffCalculator(jobLogRepository),
+                List.of(callback), alertService, 129979);
     }
 
     /**
@@ -300,14 +294,15 @@ class JobExecutionEngineTest {
         JobExecutionEngine engineWithBadCallback = new JobExecutionEngine(
                 redisUtil, jobLogRepository, retryDetailRepository,
                 new JobRetryDecider(new org.springframework.beans.factory.ObjectProvider<>() {
-                @Override
-                public RetryableExceptionMatcher getIfAvailable() {
-                    return null;
-                }
-            }), new JobBackoffCalculator(jobLogRepository),
-                List.of(throwingCallback), alertService, 18080);
+                    @Override
+                    public RetryableExceptionMatcher getIfAvailable() {
+                        return null;
+                    }
+                }), new JobBackoffCalculator(jobLogRepository),
+                List.of(throwingCallback), alertService, 129979);
         JobExecutionEngine.JobExecutionResult result = engineWithBadCallback.execute(
-                job, () -> { }, SysJobLog.TriggerSource.MANUAL);
+                job, () -> {
+                }, SysJobLog.TriggerSource.MANUAL);
         assertThat(result.success()).isTrue();
         assertThat(result.status()).isEqualTo("SUCCESS");
     }
@@ -316,7 +311,8 @@ class JobExecutionEngineTest {
     @DisplayName("执行记录完整落库：任务键/名称/来源/执行机字段齐备")
     void logFieldsComplete() {
         SysJob job = job(JobRetryPolicy.FIXED_INTERVAL, 0, 1, 10);
-        engine.execute(job, () -> { }, SysJobLog.TriggerSource.MANUAL);
+        engine.execute(job, () -> {
+        }, SysJobLog.TriggerSource.MANUAL);
         // 两次 save：插入 RUNNING + 终态更新（Mockito captor 捕获同一可变对象，读终态）
         verify(jobLogRepository, times(2)).save(any(SysJobLog.class));
         ArgumentCaptor<SysJobLog> captor = ArgumentCaptor.forClass(SysJobLog.class);
