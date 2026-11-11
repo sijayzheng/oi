@@ -16,19 +16,12 @@
  * （无对应菜单权限）或输错地址时到达本页。
  */
 import { useRouter } from 'vue-router'
-import { firstMenuPath } from '@/router'
-import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
-const auth = useAuthStore()
 
-/** 返回当前用户第一个可导航菜单（无权限用户回登录页重新认证） */
+/** 返回默认首页（静态路由，所有登录用户可见） */
 function backHome() {
-  const first = firstMenuPath(auth.menus)
-  if (first)
-    router.replace(first)
-  else
-    router.replace('/login')
+  router.replace('/')
 }
 </script>
 

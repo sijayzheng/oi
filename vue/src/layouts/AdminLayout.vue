@@ -9,6 +9,15 @@
         :default-active="activeIndex" :collapse="collapsed" :collapse-transition="false" router
         unique-opened class="admin-menu" text-color="#606266"
       >
+        <!-- 固定首页入口：静态路由，所有登录用户可见（不依赖菜单授权） -->
+        <el-menu-item index="/">
+          <el-icon>
+            <HomeFilled />
+          </el-icon>
+          <template #title>
+            首页
+          </template>
+        </el-menu-item>
         <template v-for="menu in menus" :key="menu.key">
           <!-- 目录：渲染为可展开的子菜单（目录-菜单两级结构） -->
           <el-sub-menu v-if="menu.children.length" :index="menu.key">
@@ -236,7 +245,7 @@ watch(() => route.path, (path) => {
   tabs.value.push({ path, title: (route.meta.title as string | undefined) ?? path })
 }, { immediate: true })
 
-/** 关闭标签：关闭当前签时跳往相邻签；全部关闭时回第一个可导航菜单 */
+/** 关闭标签：关闭当前签时跳往相邻签；全部关闭时回默认首页 */
 function closeTab(tab: RouteTab) {
   const index = tabs.value.findIndex(item => item.path === tab.path)
   if (index < 0)
@@ -249,7 +258,7 @@ function closeTab(tab: RouteTab) {
     router.push(next.path)
     return
   }
-  router.push(firstMenuPath(auth.menus) || '/profile')
+  router.push(firstMenuPath(auth.menus) || '/')
 }
 
 /** 下拉命令分发：个人中心跳转 / 退出登录 */

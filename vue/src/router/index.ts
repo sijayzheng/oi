@@ -115,11 +115,18 @@ const router = createRouter({
       meta: { title: '登录', public: true },
     },
     {
-      // 根布局：业务子路由动态注册；个人中心为登录即可用的静态子路由（不进菜单授权）
+      // 根布局：业务子路由动态注册；首页与个人中心为登录即可用的静态子路由（不进菜单授权）
       path: '/',
       name: 'layout',
       component: () => import('../layouts/AdminLayout.vue'),
       children: [
+        {
+          // 默认首页：path 为空即根路径 /，所有登录用户可见，不依赖菜单权限
+          path: '',
+          name: 'home',
+          component: () => import('../views/HomeView.vue'),
+          meta: { title: '首页' },
+        },
         {
           path: '/profile',
           name: 'profile',
@@ -139,7 +146,7 @@ const router = createRouter({
 })
 
 /**
- * 全局路由守卫：登录态校验 + 动态路由按需注册 + 根路径重定向。
+ * 全局路由守卫：登录态校验 + 动态路由按需注册。根路径 / 直达默认首页。
  */
 router.beforeEach(async (to) => {
   const auth = useAuthStore()
@@ -163,7 +170,7 @@ router.beforeEach(async (to) => {
   if (!auth.loaded) {
     try {
       const menus = await auth.fetchMenus()
-      buildRoutes(menus).forEach(route => router.addRoute('layout', route))
+      installDynamicRoutes(menus)
     } catch {
       auth.reset()
       return { name: 'login' }
@@ -176,14 +183,27 @@ router.beforeEach(async (to) => {
     }
   }
 
-  // 根路径：重定向到当前用户第一个可导航菜单；无任何菜单权限时落入 404
-  if (to.path === '/') {
-    const first = firstMenuPath(auth.menus)
-    return first || { name: 'not-found' }
-  }
-
   return true
 })
+
+/**
+ * 已注册的动态路由名集合：退出登录时仅移除这些路由，
+ * 保留首页、个人中心等静态子路由（它们不属于任何账号的菜单授权）。
+ */
+const dynamicRouteNames = new Set<string>()
+
+/**
+ * 注册菜单权限树对应的动态路由（幂等：重复注册仅覆盖同名路由）。
+ *
+ * @param menus 菜单权限树
+ */
+function installDynamicRoutes(menus: SysUserMenuVO[]) {
+  buildRoutes(menus).forEach((route) => {
+    if (route.name)
+      dynamicRouteNames.add(route.name as string)
+    router.addRoute('layout', route)
+  })
+}
 
 /**
  * 登录成功后装载动态路由（登录页调用；守卫处理刷新/直达场景）。
@@ -191,16 +211,16 @@ router.beforeEach(async (to) => {
  * @param menus 菜单权限树
  */
 export function registerDynamicRoutes(menus: SysUserMenuVO[]) {
-  buildRoutes(menus).forEach(route => router.addRoute('layout', route))
+  installDynamicRoutes(menus)
 }
 
 /**
- * 重置动态路由（退出登录时调用）：移除布局下全部动态子路由，防止切换账号后残留越权路由。
+ * 重置动态路由（退出登录时调用）：仅移除已注册的动态子路由，
+ * 防止切换账号后残留越权路由；静态路由（首页/个人中心）不受影响。
  */
 export function clearDynamicRoutes() {
-  router.getRoutes()
-    .filter(route => route.name && route.name !== 'layout' && route.name !== 'login' && route.name !== 'not-found')
-    .forEach(route => router.removeRoute(route.name as string))
+  dynamicRouteNames.forEach(name => router.removeRoute(name))
+  dynamicRouteNames.clear()
 }
 
 export default router

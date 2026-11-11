@@ -45,6 +45,7 @@ export default defineConfig({
             'Edit',
             'Expand',
             'Fold',
+            'HomeFilled',
             'Lock',
             'MagicStick',
             'MessageBox',

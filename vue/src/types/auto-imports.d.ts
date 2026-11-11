@@ -22,6 +22,7 @@ declare global {
   const ElMessageBox: typeof import('element-plus/es').ElMessageBox
   const Expand: typeof import('@element-plus/icons-vue').Expand
   const Fold: typeof import('@element-plus/icons-vue').Fold
+  const HomeFilled: typeof import('@element-plus/icons-vue').HomeFilled
   const Lock: typeof import('@element-plus/icons-vue').Lock
   const MagicStick: typeof import('@element-plus/icons-vue').MagicStick
   const MessageBox: typeof import('@element-plus/icons-vue').MessageBox
@@ -431,6 +432,7 @@ declare module 'vue' {
     readonly ElMessageBox: UnwrapRef<typeof import('element-plus/es')['ElMessageBox']>
     readonly Expand: UnwrapRef<typeof import('@element-plus/icons-vue')['Expand']>
     readonly Fold: UnwrapRef<typeof import('@element-plus/icons-vue')['Fold']>
+    readonly HomeFilled: UnwrapRef<typeof import('@element-plus/icons-vue')['HomeFilled']>
     readonly Lock: UnwrapRef<typeof import('@element-plus/icons-vue')['Lock']>
     readonly MagicStick: UnwrapRef<typeof import('@element-plus/icons-vue')['MagicStick']>
     readonly MessageBox: UnwrapRef<typeof import('@element-plus/icons-vue')['MessageBox']>
