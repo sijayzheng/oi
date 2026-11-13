@@ -6,7 +6,7 @@ import cn.sijay.oi.common.exception.BusinessErrorCode;
 import cn.sijay.oi.common.exception.BusinessException;
 import cn.sijay.oi.common.util.SmUtil;
 import cn.sijay.oi.sys.entity.*;
-import cn.sijay.oi.sys.model.SysFileVO;
+import cn.sijay.oi.sys.model.file.SysFileVO;
 import cn.sijay.oi.sys.repository.SysMenuRepository;
 import cn.sijay.oi.sys.repository.SysRoleMenuRepository;
 import cn.sijay.oi.sys.repository.SysUserRepository;

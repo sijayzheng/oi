@@ -2,12 +2,10 @@ package cn.sijay.oi.sys.model.menu;
 
 import cn.sijay.oi.common.model.TreeNode;
 import cn.sijay.oi.sys.entity.SysMenu;
-import cn.sijay.oi.sys.enums.MenuType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 菜单出参模型（视图对象），字段为 {@code sys_menu} 的对外全量子集。

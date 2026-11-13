@@ -6,7 +6,7 @@ import cn.sijay.oi.auth.service.SmLoginKeyManager;
 import cn.sijay.oi.common.model.Result;
 import cn.sijay.oi.common.util.IpUtils;
 import cn.sijay.oi.common.web.BaseController;
-import cn.sijay.oi.sys.model.SysFileVO;
+import cn.sijay.oi.sys.model.file.SysFileVO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;

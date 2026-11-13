@@ -1,4 +1,4 @@
-package cn.sijay.oi.sys.model;
+package cn.sijay.oi.sys.model.log;
 
 import cn.sijay.oi.sys.entity.SysLog;
 import lombok.Data;

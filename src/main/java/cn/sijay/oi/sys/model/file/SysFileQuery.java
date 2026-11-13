@@ -1,4 +1,4 @@
-package cn.sijay.oi.sys.model;
+package cn.sijay.oi.sys.model.file;
 
 import jakarta.validation.constraints.Size;
 import lombok.Data;

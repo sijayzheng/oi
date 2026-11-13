@@ -1,4 +1,4 @@
-package cn.sijay.oi.sys.model;
+package cn.sijay.oi.sys.model.file;
 
 import cn.sijay.oi.sys.entity.SysFile;
 import lombok.Data;

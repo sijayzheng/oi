@@ -1,4 +1,4 @@
-package cn.sijay.oi.sys.model;
+package cn.sijay.oi.sys.model.message;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

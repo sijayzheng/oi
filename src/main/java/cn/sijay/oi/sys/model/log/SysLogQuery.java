@@ -1,4 +1,4 @@
-package cn.sijay.oi.sys.model;
+package cn.sijay.oi.sys.model.log;
 
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;

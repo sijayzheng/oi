@@ -21,7 +21,7 @@ public class PrintTimeTask {
     /**
      * 执行体：打印当前时间（无参方法，异常由执行引擎统一处理）。
      */
-    @OiScheduled(jobKey = "sys.printTime", name = "打印当前时间")
+    @OiScheduled(jobKey = "sys.printTime", name = "打印当前时间", fixedRate = 30_000)
     public void printCurrentTime() {
         log.info("[PrintTimeTask] 当前时间: {}", LocalDateTime.now());
     }

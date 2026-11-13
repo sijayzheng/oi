@@ -4,8 +4,8 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.sijay.oi.common.exception.BusinessException;
 import cn.sijay.oi.common.model.PageQuery;
 import cn.sijay.oi.sys.entity.SysLog;
-import cn.sijay.oi.sys.model.SysLogQuery;
-import cn.sijay.oi.sys.model.SysLogVO;
+import cn.sijay.oi.sys.model.log.SysLogQuery;
+import cn.sijay.oi.sys.model.log.SysLogVO;
 import cn.sijay.oi.sys.repository.SysLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -86,18 +86,18 @@ public class SysLogService {
         for (SysLog logEntity : limited) {
             SysLogVO vo = SysLogVO.from(logEntity);
             csv.append(csvCell(vo.getId())).append(',')
-                    .append(csvCell(vo.getLevel())).append(',')
-                    .append(csvCell(vo.getModule())).append(',')
-                    .append(csvCell(vo.getAction())).append(',')
-                    .append(csvCell(vo.getUsername())).append(',')
-                    .append(csvCell(vo.getIp())).append(',')
-                    .append(csvCell(vo.getUri())).append(',')
-                    .append(csvCell(vo.getMethod())).append(',')
-                    .append(csvCell(vo.getRequestId())).append(',')
-                    .append(csvCell(vo.getResult())).append(',')
-                    .append(csvCell(vo.getContent())).append(',')
-                    .append(csvCell(vo.getCreateTime() == null ? "" : vo.getCreateTime().toString()))
-                    .append('\n');
+               .append(csvCell(vo.getLevel())).append(',')
+               .append(csvCell(vo.getModule())).append(',')
+               .append(csvCell(vo.getAction())).append(',')
+               .append(csvCell(vo.getUsername())).append(',')
+               .append(csvCell(vo.getIp())).append(',')
+               .append(csvCell(vo.getUri())).append(',')
+               .append(csvCell(vo.getMethod())).append(',')
+               .append(csvCell(vo.getRequestId())).append(',')
+               .append(csvCell(vo.getResult())).append(',')
+               .append(csvCell(vo.getContent())).append(',')
+               .append(csvCell(vo.getCreateTime() == null ? "" : vo.getCreateTime().toString()))
+               .append('\n');
         }
         return csv.toString();
     }
@@ -137,8 +137,7 @@ public class SysLogService {
             entity.setResult(result);
             entity.setErrorMsg(errorMsg);
             logRepository.save(entity);
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             log.warn("[SysLogService] 操作日志写入失败（不阻断主流程）: module={}, action={}", module, action, e);
         }
     }

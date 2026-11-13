@@ -1,5 +1,5 @@
 /**
- * 操作日志类型定义；与后端 cn.sijay.oi.sys.model.SysLogVO 对齐。
+ * 操作日志类型定义；与后端 cn.sijay.oi.sys.model.log.SysLogVO 对齐。
  */
 
 /** 日志级别联合类型 */

@@ -1,7 +1,6 @@
 package cn.sijay.oi.sys.model.config;
 
 import cn.sijay.oi.sys.entity.SysConfig;
-import cn.sijay.oi.sys.enums.ConfigValueType;
 import lombok.Data;
 
 import java.time.LocalDateTime;
