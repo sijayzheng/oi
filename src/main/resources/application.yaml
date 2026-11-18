@@ -44,6 +44,7 @@ spring:
   jackson:
     # 序列化时区（java.util.Date 等带时区类型）；应用默认时区见 OiApplication（东八区）
     time-zone: Asia/Shanghai
+    locale: zh_CN
 
 logging:
   charset:

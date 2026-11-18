@@ -25,7 +25,8 @@ import lombok.Getter;
  *   607000~607999  站内信（sys_message / receipt / broadcast_state）
  *   608000~608999  任务调度（sys_job / sys_job_log / sys_job_dead_letter）
  *   609000~609999  代码生成（gen 元数据与渲染）
- *   610000~699999  预留扩展段（新增模块按序取段，禁止跳段占用）
+ *   610000~610999  节假日日历（sys_holiday_calendar）
+ *   611000~699999  预留扩展段（新增模块按序取段，禁止跳段占用）
  * </pre>
  *
  * <p><b>扩展方式</b>：在对应模块分段内按序号新增枚举常量，注释须说明业务场景与触发条件；
@@ -292,7 +293,19 @@ public enum BusinessErrorCode implements ErrorCode {
     /**
      * 代码生成文件写入失败；触发条件：生成产物落盘时 IO 异常（目录不可写/磁盘异常）。
      */
-    GEN_WRITE_FAILED(9, 2, "代码生成文件写入失败");
+    GEN_WRITE_FAILED(9, 2, "代码生成文件写入失败"),
+
+    // ==================== 节假日日历 610000~610999 ====================
+
+    /**
+     * 日历记录不存在；触发条件：按 id/日期查询或操作时目标记录不存在。
+     */
+    HOLIDAY_CALENDAR_NOT_FOUND(10, 1, "节假日日历数据不存在"),
+
+    /**
+     * 日历日期已存在；触发条件：新增时 cal_date 与已有记录重复（uk_holiday_calendar_date 约束前置校验）。
+     */
+    HOLIDAY_CALENDAR_DATE_EXISTS(10, 2, "该日期的日历数据已存在");
 
     /**
      * 业务失败码基础段（业务标识位 + 000 模块段）；
